@@ -1,69 +1,74 @@
+from LooterManager import LooterManager
 import cv2
 import numpy as np
+import pyautogui
+import pytesseract
 from matplotlib import pyplot as plt
 
-
-# img_rgb = cv2.imread('KeyImages/FullImageTest.png')
-# img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-# template = cv2.imread('KeyImages/EmptyInventoryCell.png', 0)
-#
-# template2 = template[2:32, 2:32]
-#
-# w, h = template2.shape[::-1]
-# res = cv2.matchTemplate(img_gray, template2, cv2.TM_CCOEFF_NORMED)
-# threshold = .99
-# loc = np.where( res >= threshold)
-# for pt in zip(*loc[::-1]):
-#     cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
-# cv2.imshow('resempty', img_rgb)
-# cv2.waitKey(0)
-
+# TODO Create an actual config file
+configurations={'EmptyCellValue': 236,
+                'EmptyCellThreshold': 0.99,
+                'EmptyCellPath': 'KeyImages/EmptyInventoryCell.png',
+                'IGN': 'Guarding',
+                'InventoryTitlePath': 'KeyImages/InventoryTitle.png',
+                'InventorySlotMergePath': 'KeyImages/InventorySlotMerge.png',
+                'InventorySortPath': 'KeyImages/InventorySort.png'}
 
 # For now, we are assuming the large (1024x768) client is always used for inventory management.
 # This class will take in images from client regularly to assess the status of inventory
 # Goal is that it will be capable of determining which items are to be kept and which are to sell
 # It should also know when it is time to go npc (aka when inventory is full)
-class InventoryManager:
+class InventoryManager(LooterManager):
     def __init__(self, config):
-        # TODO Create an actual config file
+        super().__init__(config['IGN'])
+
         # TODO Create methods to re-size those config for small client
-        self.GRAYSCALE = config['EmptyCellValue']  # Grayscale color is 236 (except first line/col which is 206
-        self.THRESHOLD = config['EmptyCellThreshold']  # 0.99
-        self.template = self.create_template(cv2.imread(config['EmptyCellPath'], cv2.IMREAD_GRAYSCALE))
-        self.template_width, self.template_height = self.template.shape[::-1]
+        self.empty_cell = config['EmptyCellPath']
+        self.inv_title = config['InventoryTitlePath']
+        self.inv_slot_merge = config['InventorySlotMergePath']
+        self.inv_sort = config['InventorySortPath']
 
-    def create_template(self, template_screenshot):
-        # simply removing the first 2 rows, 2 columns, as well as last 3 rows, 3 columns from the screenshot I took
-        return template_screenshot[2:template_screenshot.shape[0] - 3, 2:template_screenshot.shape[1] - 3]
+    def confirm_inventory_is_open(self):
+        if pyautogui.locateOnScreen(image=self.inv_title, region=self.client.box) is not None:
+            return True
+        else:
+            return False
 
-    def get_number_of_empty_inventory_space(self, image_grayscale):
-        # TODO test out other cv2 built-in methods of resolving match, maybe one fits better our needs
+    def get_number_of_empty_inventory_space(self):
+        if not self.confirm_inventory_is_open():
+            self.toggle_inventory()
 
-        match_result = cv2.matchTemplate(image_grayscale, self.template, cv2.TM_CCOEFF_NORMED)
-        good_fits = np.where(match_result >= self.THRESHOLD)
-        return len(good_fits[0])
+        empty_spaces = len(list(pyautogui.locateAllOnScreen(image=self.empty_cell, region=self.client.box)))
+        self.toggle_inventory()
+        return empty_spaces
 
-    # Just a temporary method used for testing purposes
-    def print_red_squares_on_image(self, image):
-        image_grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        match_result = cv2.matchTemplate(image_grayscale, self.template, cv2.TM_CCOEFF_NORMED)
-        good_fits = np.where(match_result >= self.THRESHOLD)
+    def merge_inventory(self):
+        if not self.confirm_inventory_is_open():
+            self.toggle_inventory()
 
-        for pt in zip(*good_fits[::-1]):
-            cv2.rectangle(image, pt, (pt[0] + self.template_width, pt[1] + self.template_height), (0, 0, 255), 2)
+        try:
+            x, y = pyautogui.locateCenterOnScreen(image=self.inv_slot_merge, region=self.client.box)
 
-        cv2.imshow('result', image)
-        cv2.waitKey(0)  # Press any key on the window that pops-up to allow code to continue executing
+        except TypeError:
+            self.toggle_inventory()
+            self.toggle_inventory()
+            x, y = pyautogui.locateCenterOnScreen(image=self.inv_slot_merge, region=self.client.box)
+
+        self.click_at(x, y)
+        return x, y
+
+    def sort_inventory(self, x, y):
+        if not self.confirm_inventory_is_open():
+            self.toggle_inventory()
+
+        self.click_at(x, y)
+
+    def merge_and_sort_inventory(self):
+        x, y = self.merge_inventory()
+        self.sort_inventory(x, y)
 
 
-test = InventoryManager(config={'EmptyCellValue': 236, 'EmptyCellThreshold': 0.99,
-                                'EmptyCellPath': 'KeyImages/EmptyInventoryCell.png'})
-
-current_image = cv2.imread('KeyImages/FullImageTest.png')
-current_im_gray = cv2.cvtColor(current_image, cv2.COLOR_BGR2GRAY)
-empty_spots = test.get_number_of_empty_inventory_space(current_im_gray)
-print('Number of space remaining in inventory: {}'.format(empty_spots))
-test.print_red_squares_on_image(current_image)
-
+test = InventoryManager(config=configurations)
+test.merge_and_sort_inventory()
 # TODO Take a bunch of screenshots along with the real number of available space, and run on each to see if output
 # TODO is always consistent
