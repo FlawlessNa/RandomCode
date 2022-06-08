@@ -31,70 +31,189 @@ class ClientManager():
             if pyautogui.locateOnScreen(image=config[ign], region=client.box):
                 return client
 
-
     def move_right_by(self, distance):
-        pass
-
-    def move_right_for(self, duration):
-        self.client.activate()
-        pydirectinput.keyDown('right')
-        time.sleep(duration)
-        pydirectinput.keyUp('right')
-
-    def move_right_to(self, destination):
         pass
 
     def move_left_by(self, distance):
         pass
 
-    def move_left_for(self, duration):
-        self.client.activate()
-        pydirectinput.keyDown('left')
-        time.sleep(duration)
-        pydirectinput.keyUp('left')
-
-    def move_left_to(self, destination):
-        pass
-
     def move_up_by(self, distance):
-        pass
-
-    def move_up_for(self, duration):
-        self.client.activate()
-        pydirectinput.keyDown('up')
-        time.sleep(duration)
-        pydirectinput.keyUp('up')
-
-    def move_up_to(self, destination):
         pass
 
     def move_down_by(self, distance):
         pass
 
+    def move_right_for(self, duration):
+        self.client.activate()
+        now = time.time()
+        pydirectinput.keyDown('right')
+        while time.time() - now < duration:
+            pass
+        pydirectinput.keyUp('right')
+
+    def move_left_for(self, duration):
+        self.client.activate()
+        now = time.time()
+        pydirectinput.keyDown('left')
+        while time.time() - now < duration:
+            pass
+        pydirectinput.keyUp('left')
+
+    def move_up_for(self, duration):
+        self.client.activate()
+        now = time.time()
+        pydirectinput.keyDown('up')
+        while time.time() - now < duration:
+            pass
+        pydirectinput.keyUp('up')
+
     def move_down_for(self, duration):
         self.client.activate()
+        now = time.time()
         pydirectinput.keyDown('down')
-        time.sleep(duration)
+        while time.time() - now < duration:
+            pass
         pydirectinput.keyUp('down')
 
-    def move_down_to(self, destination):
-        pass
+    def move_right_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('right')
+
+        loop = True
+        while loop:
+            if eval(expression):
+                pydirectinput.keyUp('right')
+                loop = False
+
+    def move_left_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('left')
+
+        loop = True
+        while loop:
+            if eval(expression):
+                pydirectinput.keyUp('left')
+                loop = False
+
+    def move_up_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('up')
+
+        loop = True
+        while loop:
+            if eval(expression):
+                pydirectinput.keyUp('up')
+                loop = False
+
+    def move_down_until(self, expression, stop_when):
+        self.client.activate()
+        pydirectinput.keyDown('down')
+
+        loop = True
+        while loop:
+            if eval(expression):
+                pydirectinput.keyUp('down')
+                loop = False
+
+    def move_right_and_down_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('right')
+        pydirectinput.keyDown('down')
+
+        loop = True
+        while loop:
+            if eval(expression):
+                pydirectinput.keyUp('right')
+                pydirectinput.keyUp('down')
+                loop = False
+
+    def move_left_and_down_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('left')
+        pydirectinput.keyDown('down')
+
+        loop = True
+        while loop:
+            if eval(expression):
+                pydirectinput.keyUp('left')
+                pydirectinput.keyUp('down')
+                loop = False
 
     def jump(self):
         self.client.activate()
-        pydirectinput.press('altright')
+        pydirectinput.press('altleft')
 
     def jump_right(self):
         self.client.activate()
         pydirectinput.keyDown('right')
-        pydirectinput.press('altright')
+        pydirectinput.press('altleft')
         pydirectinput.keyUp('right')
 
     def jump_left(self):
         self.client.activate()
         pydirectinput.keyDown('left')
-        pydirectinput.press('altright')
+        pydirectinput.press('altleft')
         pydirectinput.keyUp('left')
+
+    def jump_down(self):
+        self.client.activate()
+        pydirectinput.keyDown('down')
+        pydirectinput.press('altleft')
+        pydirectinput.keyUp('down')
+
+    def jump_right_for(self, duration):
+        self.client.activate()
+        now = time.time()
+        pydirectinput.keyDown('right')
+        while time.time() - now < duration:
+            pydirectinput.press('altleft')
+        pydirectinput.keyUp('right')
+
+    def jump_left_for(self, duration):
+        self.client.activate()
+        now = time.time()
+        pydirectinput.keyDown('left')
+        while time.time() - now < duration:
+            pydirectinput.press('altleft')
+        pydirectinput.keyUp('left')
+
+    def jump_down_for(self, duration):
+        self.client.activate()
+        now = time.time()
+        pydirectinput.keyDown('down')
+        while time.time() - now < duration:
+            pydirectinput.press('altleft')
+        pydirectinput.keyUp('down')
+
+    def jump_right_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('right')
+        loop = True
+        while loop:
+            pydirectinput.press('altleft')
+            if eval(expression):
+                pydirectinput.keyUp('right')
+                loop = False
+
+    def jump_left_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('left')
+        loop = True
+        while loop:
+            pydirectinput.press('altleft')
+            if eval(expression):
+                pydirectinput.keyUp('left')
+                loop = False
+
+    def jump_down_until(self, expression):
+        self.client.activate()
+        pydirectinput.keyDown('down')
+        loop = True
+        while loop:
+            pydirectinput.press('altleft')
+            if eval(expression):
+                pydirectinput.keyUp('down')
+                loop = False
 
     def toggle_inventory(self):
         self.client.activate()
@@ -103,6 +222,10 @@ class ClientManager():
     def click(self):
         self.client.activate()
         pydirectinput.click()
+
+    def feed_pets(self):
+        self.client.activate()
+        pydirectinput.press('7')
 
     def click_at(self, x, y):
         self.client.activate()

@@ -8,3 +8,11 @@ class MageManager(ClientManager):
     def cast_ult(self):
         self.client.activate()
         pydirectinput.press('ctrlright')
+
+    def check_pots_left(self):
+        pass
+
+    def rebuff(self):
+        pass
+
+

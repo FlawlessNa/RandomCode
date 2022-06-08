@@ -1,4 +1,4 @@
-from LooterManager import LooterManager
+from ClientManager import ClientManager
 import cv2
 import numpy as np
 import pyautogui
@@ -18,7 +18,7 @@ configurations={'EmptyCellValue': 236,
 # This class will take in images from client regularly to assess the status of inventory
 # Goal is that it will be capable of determining which items are to be kept and which are to sell
 # It should also know when it is time to go npc (aka when inventory is full)
-class InventoryManager(LooterManager):
+class InventoryManager(ClientManager):
     def __init__(self, config):
         super().__init__(config['IGN'])
 
