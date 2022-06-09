@@ -1,23 +1,43 @@
-import numpy as np
-import cv2
-from PIL import ImageGrab
+import ctypes
 import win32gui
 import pyautogui
+from LooterManager import LooterManager
+from MageManager import MageManager
+import multiprocessing
 
-while True:
-    img = ImageGrab.grab(bbox=(0, 0, 1024, 768))  # x, y, w, h
-    img_np = np.array(img)
-    # frame = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("window", img_np)
-    if cv2.waitKey(25) & 0Xff == ord('q'):
-        break
+configurations_loot={'EmptyCellValue': 236,
+                'EmptyCellThreshold': 0.99,
+                'YellowDotPath': 'KeyImages/MapNavigation/YellowDot.png',
+                'MapToggled': 'KeyImages/MapNavigation/MapProperlyToggled.png',
+                'MapRect': 5,
+                'IGN': 'Guarding',
+                'Sequence_1_Target': 'KeyImages/MapNavigation/Target_Sequence1.png'}
 
-cv2.destroyAllWindows()
+configurations_mage={'EmptyCellValue': 236,
+                'EmptyCellThreshold': 0.99,
+                'YellowDotPath': 'KeyImages/MapNavigation/YellowDot.png',
+                'MapToggled': 'KeyImages/MapNavigation/MapProperlyToggled.png',
+                'MapRect': 5,
+                'IGN': 'LegalizeIt',
+                'Sequence_1_Target': 'KeyImages/MapNavigation/Target_Sequence1.png'}
 
+Guarding = LooterManager(config=configurations_loot)
+LegalizeIt = MageManager(config=configurations_mage)
+
+def loot():
+    Guarding.use_stance()
+    Guarding.ensure_mount_is_used()
+    Guarding.map_sequence_1()
+    Guarding.map_sequence_2()
+    Guarding.map_sequence_3()
+    Guarding.map_sequence_4()
+
+def farm():
+    LegalizeIt.farm_mode()
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-win32gui.FindWindow()
+    proc1 = multiprocessing.Process(target=loot)
+    proc2 = multiprocessing.Process(target=farm)
+    proc1.start()
+    proc2.start()

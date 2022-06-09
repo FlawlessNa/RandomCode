@@ -1,21 +1,44 @@
 import os
 import win32gui
 import win32con
+import win32api
 import time
 import pyautogui
 import pydirectinput
 
 # USE pyautogui -- it has everything we need!
 config = {'IGN_LIST': ['Guarding', 'ShyPooper', 'LegalizeIt', 'Goldmine1', 'Goldmine2', 'Goldmine3', 'Buccanoid'],
-          'Guarding':'KeyImages/Guarding_IGN.png'}
+          'Guarding':'KeyImages/Guarding_IGN.png',
+          'LegalizeIt': 'KeyImages/LegalizeIt_IGN.png'}
 
 class ClientManager():
     # Pass in the IGN of the client this instance should control
-    def __init__(self, ign):
-        self.client = self.get_window_from_ign(ign)
+    def __init__(self, config):
+        self.client = self.get_window_from_ign(config['IGN'])
+        self.hwnd = self.client._hWnd
+        self.config = config
 
     def open(self, resolution):
         pass
+
+    def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1):
+
+        assert repeat_count < 2 ** 16
+        scan_code = win32api.MapVirtualKey(key, 0)
+
+        if wm_command in [win32con.WM_KEYDOWN, win32con.WM_SYSKEYDOWN]:
+            context_code = 0
+            transition_state = 0
+
+        elif wm_command in [win32con.WM_KEYUP, win32con.WM_SYSKEYUP]:
+            context_code = 0
+            transition_state = 1
+
+        else:
+            pass
+
+        return int(format(transition_state, '01b') + format(previous_key_state, '01b') + format(context_code, '01b') + format(0, '04b') + \
+               format(extended_key, '01b') + format(scan_code, '08b') + format(repeat_count, '016b'), base=2)
 
     def get_window_from_ign(self, ign):
         # TODO create actual config file
@@ -140,8 +163,12 @@ class ClientManager():
                 loop = False
 
     def jump(self):
-        self.client.activate()
-        pydirectinput.press('altleft')
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYDOWN, extended_key=self.config['JumpKeyExt'], previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYUP, extended_key=self.config['JumpKeyExt'])
+
+        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, self.config['JumpKey'], lparam_keyup)
 
     def jump_right(self):
         self.client.activate()
