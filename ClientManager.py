@@ -5,11 +5,14 @@ import win32api
 import time
 import pyautogui
 import pydirectinput
+import ctypes
+from ctypes import wintypes
 
 # USE pyautogui -- it has everything we need!
 config = {'IGN_LIST': ['Guarding', 'ShyPooper', 'LegalizeIt', 'Goldmine1', 'Goldmine2', 'Goldmine3', 'Buccanoid'],
           'Guarding':'KeyImages/Guarding_IGN.png',
-          'LegalizeIt': 'KeyImages/LegalizeIt_IGN.png'}
+          'LegalizeIt': 'KeyImages/LegalizeIt_IGN.png',
+          'Goldmine1': 'KeyImages/Goldmine1_IGN.png'}
 
 class ClientManager():
     # Pass in the IGN of the client this instance should control
@@ -21,17 +24,33 @@ class ClientManager():
     def open(self, resolution):
         pass
 
-    def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1):
+    def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
 
         assert repeat_count < 2 ** 16
-        scan_code = win32api.MapVirtualKey(key, 0)
 
-        if wm_command in [win32con.WM_KEYDOWN, win32con.WM_SYSKEYDOWN]:
+        if scan_code is None:
+            scan_code = win32api.MapVirtualKey(key, 0)
+
+        if wm_command == win32con.WM_KEYDOWN:
             context_code = 0
             transition_state = 0
 
-        elif wm_command in [win32con.WM_KEYUP, win32con.WM_SYSKEYUP]:
+        elif wm_command == win32con.WM_KEYUP:
             context_code = 0
+            transition_state = 1
+
+        elif wm_command == win32con.WM_SYSKEYDOWN:
+            if key == win32con.VK_MENU:
+                context_code = 1
+            else:
+                context_code = 0
+            transition_state = 0
+
+        elif wm_command == win32con.WM_SYSKEYUP:
+            if key == win32con.VK_MENU:
+                context_code = 1
+            else:
+                context_code = 0
             transition_state = 1
 
         else:
@@ -68,19 +87,32 @@ class ClientManager():
 
     def move_right_for(self, duration):
         self.client.activate()
-        now = time.time()
         pydirectinput.keyDown('right')
-        while time.time() - now < duration:
-            pass
+        time.sleep(duration)
         pydirectinput.keyUp('right')
+
+        # lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYDOWN, extended_key=0,
+        #                                         previous_key_state=0)
+        # lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYUP, extended_key=0)
+        #
+        # win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown)
+        # time.sleep(duration)
+        # win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup)
 
     def move_left_for(self, duration):
         self.client.activate()
-        now = time.time()
         pydirectinput.keyDown('left')
-        while time.time() - now < duration:
-            pass
+        time.sleep(duration)
         pydirectinput.keyUp('left')
+
+    def move_up(self):
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYDOWN, extended_key=1,
+                                                previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYUP, extended_key=1)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup)
+
 
     def move_up_for(self, duration):
         self.client.activate()
@@ -168,6 +200,24 @@ class ClientManager():
         lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYUP, extended_key=self.config['JumpKeyExt'])
 
         win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, self.config['JumpKey'], lparam_keyup)
+
+    def jump_for(self, duration):
+
+        lparam_keydown_ini = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYDOWN, extended_key=self.config['JumpKeyExt'],
+                                                    previous_key_state=0)
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYDOWN, extended_key=self.config['JumpKeyExt'],
+                                                previous_key_state=1)
+
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYUP, extended_key=self.config['JumpKeyExt'])
+
+        now = time.time()
+
+        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown_ini)
+        while time.time() - now < duration:
+            win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown)
+            time.sleep(0.05)
         win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, self.config['JumpKey'], lparam_keyup)
 
     def jump_right(self):

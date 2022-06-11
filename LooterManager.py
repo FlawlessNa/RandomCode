@@ -7,6 +7,8 @@ import win32con
 
 
 # https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+# http://www.kbdedit.com/manual/low_level_vk_list.html
+
 configurations={'EmptyCellValue': 236,
                 'EmptyCellThreshold': 0.99,
                 'YellowDotPath': 'KeyImages/MapNavigation/YellowDot.png',
@@ -43,7 +45,7 @@ class LooterManager(ClientManager):
         win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, self.config['StanceKey'], lparam_keydown)
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, self.config['StanceKey'], lparam_keyup)
 
-        time.sleep(0.6)
+        time.sleep(0.8)
 
     def chat_feed_is_displayed(self):
         if pyautogui.locateOnScreen(image='KeyImages/Feed_is_Displayed.png', region=self.client.box) is not None:
@@ -76,7 +78,7 @@ class LooterManager(ClientManager):
 
     def ensure_mount_is_used(self):
 
-        if pyautogui.locateOnScreen(image=self.config['MountImg'], region=self.client.box, confidence=0.9) is None:
+        if pyautogui.locateOnScreen(image=self.config['MountImg'], region=self.client.box, confidence=0.8) is None:
             self.toggle_mount()
 
     def map_sequence_1(self):
@@ -127,10 +129,11 @@ class LooterManager(ClientManager):
         self.move_left_until(expression=cond1)
 
 
-Guarding = LooterManager(config=configurations)
-Guarding.jump()
-Guarding.map_sequence_1()
-Guarding.map_sequence_2()
-Guarding.map_sequence_3()
-Guarding.map_sequence_4()
-print('ok')
+# Guarding = LooterManager(config=configurations)
+# Guarding.use_stance()
+# Guarding.ensure_mount_is_used()
+# Guarding.map_sequence_1()
+# Guarding.map_sequence_2()
+# Guarding.map_sequence_3()
+# Guarding.map_sequence_4()
+# print('ok')
