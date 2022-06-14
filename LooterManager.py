@@ -65,15 +65,12 @@ class LooterManager(ClientManager):
 
     def map_sequence_1(self):
 
-        cond1 = """pyautogui.locateOnScreen(image='KeyImages/MapNavigation/BackHead.png',
-                                        region=self.client.box,
-                                        confidence=0.9) != None"""
-
+        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
         self.jump_right_for(5)
         self.move_right_and_down_until(expression=cond1)
 
         pydirectinput.keyDown('up')
-        time.sleep(0.3)
+        time.sleep(0.5)
         pydirectinput.keyUp('up')
         # self.move_up_until(expression=cond2)
 

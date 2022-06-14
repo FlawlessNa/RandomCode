@@ -93,14 +93,6 @@ class ClientManager():
         time.sleep(duration)
         pydirectinput.keyUp('right')
 
-        # lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYDOWN, extended_key=0,
-        #                                         previous_key_state=0)
-        # lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYUP, extended_key=0)
-        #
-        # win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown)
-        # time.sleep(duration)
-        # win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup)
-
     def move_left_for(self, duration):
         self.client.activate()
         pydirectinput.keyDown('left')
@@ -115,21 +107,16 @@ class ClientManager():
         win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown)
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup)
 
-
     def move_up_for(self, duration):
         self.client.activate()
-        now = time.time()
         pydirectinput.keyDown('up')
-        while time.time() - now < duration:
-            pass
+        time.sleep(duration)
         pydirectinput.keyUp('up')
 
     def move_down_for(self, duration):
         self.client.activate()
-        now = time.time()
         pydirectinput.keyDown('down')
-        while time.time() - now < duration:
-            pass
+        time.sleep(duration)
         pydirectinput.keyUp('down')
 
     def move_right_until(self, expression):
@@ -198,21 +185,22 @@ class ClientManager():
 
     def jump(self):
 
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYDOWN, extended_key=self.config['JumpKeyExt'], previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYUP, extended_key=self.config['JumpKeyExt'])
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='jumpkey'))
 
-        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, self.config['JumpKey'], lparam_keyup)
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, key, lparam_keyup)
 
     def jump_for(self, duration):
 
-        lparam_keydown_ini = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYDOWN, extended_key=self.config['JumpKeyExt'],
-                                                    previous_key_state=0)
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='jumpkey'))
 
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYDOWN, extended_key=self.config['JumpKeyExt'],
-                                                previous_key_state=1)
+        lparam_keydown_ini = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYDOWN, extended_key=extended_param, previous_key_state=0)
 
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['JumpKey'], wm_command=win32con.WM_SYSKEYUP, extended_key=self.config['JumpKeyExt'])
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYDOWN, extended_key=extended_param, previous_key_state=1)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYUP, extended_key=extended_param)
 
         now = time.time()
 
@@ -225,19 +213,19 @@ class ClientManager():
     def jump_right(self):
         self.client.activate()
         pydirectinput.keyDown('right')
-        pydirectinput.press('altleft')
+        pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('right')
 
     def jump_left(self):
         self.client.activate()
         pydirectinput.keyDown('left')
-        pydirectinput.press('altleft')
+        pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('left')
 
     def jump_down(self):
         self.client.activate()
         pydirectinput.keyDown('down')
-        pydirectinput.press('altleft')
+        pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('down')
 
     def jump_right_for(self, duration):
@@ -245,7 +233,7 @@ class ClientManager():
         now = time.time()
         pydirectinput.keyDown('right')
         while time.time() - now < duration:
-            pydirectinput.press('altleft')
+            pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('right')
 
     def jump_left_for(self, duration):
@@ -253,7 +241,7 @@ class ClientManager():
         now = time.time()
         pydirectinput.keyDown('left')
         while time.time() - now < duration:
-            pydirectinput.press('altleft')
+            pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('left')
 
     def jump_down_for(self, duration):
@@ -261,7 +249,7 @@ class ClientManager():
         now = time.time()
         pydirectinput.keyDown('down')
         while time.time() - now < duration:
-            pydirectinput.press('altleft')
+            pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('down')
 
     def jump_right_until(self, expression):
@@ -269,7 +257,7 @@ class ClientManager():
         pydirectinput.keyDown('right')
         loop = True
         while loop:
-            pydirectinput.press('altleft')
+            pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
             if eval(expression):
                 pydirectinput.keyUp('right')
                 loop = False
@@ -279,14 +267,14 @@ class ClientManager():
         pydirectinput.keyDown('left')
         loop = True
         while loop:
-            pydirectinput.press('altleft')
+            pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
             if eval(expression):
                 pydirectinput.keyUp('left')
                 loop = False
 
     def jump_down_until(self, expression):
         self.client.activate()
-        pydirectinput.keyDown('down')
+        pydirectinput.keyDown(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         loop = True
         while loop:
             pydirectinput.press('altleft')
@@ -295,20 +283,32 @@ class ClientManager():
                 loop = False
 
     def toggle_inventory(self):
-        self.client.activate()
-        pydirectinput.press('i')
+
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='inventorykey'))
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
     def click(self):
         self.client.activate()
         pydirectinput.click()
 
-    def feed_pets(self):
-        self.client.activate()
-        pydirectinput.press('7')
+    def feed_pet(self):
+
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='petfoodkey'))
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
     def feed_multiple_pets(self, nbr_press):
         for i in range(nbr_press):
-            self.feed_pets()
+            self.feed_pet()
 
     def click_at(self, x, y):
         self.client.activate()
