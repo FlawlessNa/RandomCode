@@ -39,7 +39,7 @@ def farm2():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    LegalizeIt.find_image(image=config.get(section='Map Images', option='left_ladder'))
+    LegalizeIt.mapowner()
     # Guarding.ensure_mount_is_used()
     # Guarding.map_sequence_1()
     # Guarding.map_sequence_2()

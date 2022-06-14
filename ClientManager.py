@@ -12,6 +12,7 @@ class ClientManager():
     # Pass in the IGN of the client this instance should control
     def __init__(self, config, ign):
         self.config = config
+        self.ign = ign
         self.client = self.get_window_from_ign(ign)
         self.hwnd = self.client._hWnd
 
@@ -75,21 +76,43 @@ class ClientManager():
             if pyautogui.locateOnScreen(image=image, region=client.box):
                 return client
 
+    def toggle_character_stats(self):
+
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='characterstatskey'))
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+
+    def get_char_speed(self):
+        # TODO: read in actual speed from the character stats menu
+        try:
+            return self.char_speed
+        except AttributeError:
+            self.char_speed = eval(self.config.get(section='Character Speed', option='speed_dict'))[self.ign]
+            return self.char_speed
+
+
     def move_right_by(self, distance):
-        # 1 sec is approximately equal to 200 pixel
-        time = distance / 200
+        # 1 sec is approximately equal to 200 pixel when character has 140% speed.
+        time = distance / ((200 / 1.4) * self.char_speed)
         self.move_right_for(time)
 
     def move_left_by(self, distance):
-        # 1 sec is approximately equal to 200 pixel
-        time = distance / 200
+        # 1 sec is approximately equal to 200 pixel when character has 140% speed.
+        time = distance / ((200 / 1.4) * self.char_speed)
         self.move_left_for(time)
 
     def move_up_by(self, distance):
-        pass
+        # 1 sec is approximately equal to 200 pixel when character has 140% speed.
+        time = distance / ((200 / 1.4) * self.char_speed)
+        self.move_up_for(time)
 
     def move_down_by(self, distance):
-        pass
+        time = distance / ((200 / 1.4) * self.char_speed)
+        self.move_left_for(time)
 
     def move_right_for(self, duration):
         self.client.activate()
@@ -321,12 +344,48 @@ class ClientManager():
     def check_pots_left(self):
         pass
 
+    def type_message(self, message):
+
+        # This assume all characters are "standard" (from A-Z, 0-9)
+        for char in message:
+            lparam_char = self.construct_lparams(repeat_count=1, key=ord(char), wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+            win32api.PostMessage(self.hwnd, win32con.WM_CHAR, ord(char), lparam_char)
+            time.sleep(0.05)
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown)
+        time.sleep(0.05)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup)
+
     def mapowner(self):
-        self.client.activate()
-        pydirectinput.press('1')
-        pydirectinput.keyDown('shiftleft')
-        pydirectinput.press('`')
-        pydirectinput.keyUp('shiftleft')
-        pydirectinput.write('mapowner')
-        pydirectinput.press('enter')
-        pydirectinput.press('esc')
+
+        def allchat():
+            key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='allchatkey'))
+
+            lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+            lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+            time.sleep(0.05)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+
+        def tilde_symbol():
+            key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='tildekey'))
+
+            lparam_char = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+
+            win32api.PostMessage(self.hwnd, win32con.WM_CHAR, 0x7E, lparam_char)
+            time.sleep(0.05)
+
+        allchat()
+        tilde_symbol()
+        self.type_message('mapowner')
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown)
+        time.sleep(0.05)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup)
