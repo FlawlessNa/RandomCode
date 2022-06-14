@@ -19,8 +19,8 @@ if user == 'Nass':
 else:
     config.read('config_lec.ini')
 
-Guarding = LooterManager(config=config, ign='Guarding')
-# LegalizeIt = MageManager(config=config, ign='LegalizeIt')
+# Guarding = LooterManager(config=config, ign='Guarding')
+LegalizeIt = MageManager(config=config, ign='LegalizeIt')
 # Goldmine1 = MageManager(config=config)
 
 def loot():
@@ -39,11 +39,12 @@ def farm2():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    Guarding.ensure_mount_is_used()
-    Guarding.map_sequence_1()
-    Guarding.map_sequence_2()
-    Guarding.map_sequence_3()
-    Guarding.map_sequence_4()
+    LegalizeIt.find_image(image=config.get(section='Map Images', option='left_ladder'))
+    # Guarding.ensure_mount_is_used()
+    # Guarding.map_sequence_1()
+    # Guarding.map_sequence_2()
+    # Guarding.map_sequence_3()
+    # Guarding.map_sequence_4()
     # proc1 = multiprocessing.Process(target=loot)
     # proc2 = multiprocessing.Process(target=farm1)
     # proc3 = multiprocessing.Process(target=farm2)

@@ -51,16 +51,27 @@ class MageManager(ClientManager):
         win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
-    def reposition(self, target):
-        char_pos = pyautogui.locateOnScreen(image='KeyImages/MasterAdventurer.png', region=self.client.box, confidence=0.95)
-        target_pos = pyautogui.locateOnScreen(image=target, region=self.client.box, confidence=0.95)
-        if char_pos is not None and target_pos is not None:
-            if target_pos.left - char_pos.left > 150:
-                self.move_right_for(1)
-            elif char_pos.left - target_pos.left > 150:
-                self.move_left_for(1)
-        print(char_pos)
-        print(target_pos)
+    def reposition(self):
+        char_pos = self.find_image(image=self.config.get(section='Character Images', option='mage_medal'))
+        too_far_left = self.find_image(image=self.config.get(section='Map Images', option='target_sequence_2'))
+        too_far_right = self.find_image(image=self.config.get(section='Map Images', option='left_ladder'))
+        if char_pos is None:
+            return None
+        else:
+            if too_far_left is not None:
+                distance = char_pos.x - too_far_left.x
+                desired_distance = 650
+                self.move_right_by(distance=desired_distance - distance)
+            elif too_far_right is not None:
+                distance = too_far_right.x - char_pos.x
+                desired_distance = 1000
+                self.move_left_by(distance=desired_distance - distance)
+
+    def find_image(self, image):
+        if pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8) is not None:
+            return pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8)
+        else:
+            return None
 
 
     def detect_mobs(self, mob_image):

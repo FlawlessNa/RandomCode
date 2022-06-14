@@ -76,10 +76,14 @@ class ClientManager():
                 return client
 
     def move_right_by(self, distance):
-        pass
+        # 1 sec is approximately equal to 200 pixel
+        time = distance / 200
+        self.move_right_for(time)
 
     def move_left_by(self, distance):
-        pass
+        # 1 sec is approximately equal to 200 pixel
+        time = distance / 200
+        self.move_left_for(time)
 
     def move_up_by(self, distance):
         pass
