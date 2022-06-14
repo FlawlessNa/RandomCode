@@ -8,9 +8,7 @@ import multiprocessing
 import psutil
 
 
-configurations_loot={'EmptyCellValue': 236,
-                'EmptyCellThreshold': 0.99,
-                'YellowDotPath': 'KeyImages/MapNavigation/YellowDot.png',
+configurations_loot={
                 'MapToggled': 'KeyImages/MapNavigation/MapProperlyToggled.png',
                 'MountImg': 'KeyImages/SilverMane.png',
                 'MountKey': 0x58,  # chr(120) represents key 'x'

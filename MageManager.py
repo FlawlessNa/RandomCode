@@ -44,7 +44,10 @@ class MageManager(ClientManager):
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup_left)
 
     def teleport_right(self):
-        pass
+        self.client.activate()
+        pydirectinput.keyDown('right')
+        pydirectinput.press(self.config['KEYBINDS - Mage - pyautogui']['teleportkey'])
+        pydirectinput.keyUp('right')
 
     def rebuff(self):
         pass
