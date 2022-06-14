@@ -68,7 +68,7 @@ class InventoryManager(ClientManager):
         self.sort_inventory(x, y)
 
 
-test = InventoryManager(config=configurations)
-test.merge_and_sort_inventory()
+# test = InventoryManager(config=configurations)
+# test.merge_and_sort_inventory()
 # TODO Take a bunch of screenshots along with the real number of available space, and run on each to see if output
 # TODO is always consistent

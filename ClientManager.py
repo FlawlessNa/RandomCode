@@ -8,18 +8,12 @@ import pydirectinput
 import ctypes
 from ctypes import wintypes
 
-# USE pyautogui -- it has everything we need!
-config = {'IGN_LIST': ['Guarding', 'ShyPooper', 'LegalizeIt', 'Goldmine1', 'Goldmine2', 'Goldmine3', 'Buccanoid'],
-          'Guarding':'KeyImages/Guarding_IGN.png',
-          'LegalizeIt': 'KeyImages/LegalizeIt_IGN.png',
-          'Goldmine1': 'KeyImages/Goldmine1_IGN.png'}
-
 class ClientManager():
     # Pass in the IGN of the client this instance should control
-    def __init__(self, config):
-        self.client = self.get_window_from_ign(config['IGN'])
-        self.hwnd = self.client._hWnd
+    def __init__(self, config, ign):
         self.config = config
+        self.client = self.get_window_from_ign(ign)
+        self.hwnd = self.client._hWnd
 
     def open(self, resolution):
         pass
@@ -60,9 +54,17 @@ class ClientManager():
                format(extended_key, '01b') + format(scan_code, '08b') + format(repeat_count, '016b'), base=2)
 
     def get_window_from_ign(self, ign):
-        # TODO create actual config file
-        assert ign in config['IGN_LIST'], "The IGN provided is not in the configured list"
+        ign_dict = eval(self.config.get(section='IGN', option='ign_dict'))
+        assert ign in ign_dict.values(), "The IGN provided is not in the configured list"
+        for key, val in ign_dict.items():
+            if val == ign:
+                char_type = 'mages' if 'mage' in key else 'looter'
+                break
         all_windows = pyautogui.getWindowsWithTitle('MapleRoyals')
+        try:
+            image = eval(self.config.get(section='IGN Images', option=char_type))[ign]
+        except NameError:
+            image = self.config.get(section='IGN Images', option=char_type)
 
         for client in all_windows:
 
@@ -70,7 +72,7 @@ class ClientManager():
             client.show()
             if any([coordinate < 0 for coordinate in client.box]):
                 continue
-            if pyautogui.locateOnScreen(image=config[ign], region=client.box):
+            if pyautogui.locateOnScreen(image=image, region=client.box):
                 return client
 
     def move_right_by(self, distance):
@@ -303,6 +305,10 @@ class ClientManager():
     def feed_pets(self):
         self.client.activate()
         pydirectinput.press('7')
+
+    def feed_multiple_pets(self, nbr_press):
+        for i in range(nbr_press):
+            self.feed_pets()
 
     def click_at(self, x, y):
         self.client.activate()

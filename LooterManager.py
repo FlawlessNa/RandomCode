@@ -9,41 +9,20 @@ import win32con
 # https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 # http://www.kbdedit.com/manual/low_level_vk_list.html
 
-configurations={'EmptyCellValue': 236,
-                'EmptyCellThreshold': 0.99,
-                'YellowDotPath': 'KeyImages/MapNavigation/YellowDot.png',
-                'MapToggled': 'KeyImages/MapNavigation/MapProperlyToggled.png',
-                'MountImg': 'KeyImages/SilverMane.png',
-                'MountKey': 0x58,  # chr(120) represents key 'x'
-                'MountKeyExt': 0,
-                'MapRect': 5,
-                'IGN': 'Guarding',
-                'Sequence_1_Target': 'KeyImages/MapNavigation/Target_Sequence1.png',
-                'StanceKey': win32con.VK_END,
-                'StanceKeyExt': 1,
-                'PetFoodKey': 0x37,  # chr(55) represents key '7'
-                'MountFoodKey': 0x38,  # chr(56) represents key '8'
-                'MountFoodKeyExt': 0,
-                'ToggleChatFeed': 0xDE,  # chr(222) represents key "'"
-                'JumpKey': win32con.VK_MENU,  # The right ALT key
-                'JumpKeyExt': 1
-                }
-
-
 class LooterManager(ClientManager):
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, ign):
+        super().__init__(config, ign)
 
     def use_stance(self):
-        # self.client.activate()
-        # pydirectinput.press('end')
 
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['StanceKey'], wm_command=win32con.WM_KEYDOWN, extended_key=self.config['StanceKeyExt'], previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['StanceKeyExt'], wm_command=win32con.WM_KEYUP, extended_key=1)
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Looter', option='stancekey'))
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, self.config['StanceKey'], lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, self.config['StanceKey'], lparam_keyup)
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
         time.sleep(0.8)
 
@@ -55,31 +34,34 @@ class LooterManager(ClientManager):
         else:
             return None
 
-    def feed_multiple_pets(self, nbr_press):
-        for i in range(nbr_press):
-            self.feed_pets()
-
     def feed_mount(self):
 
-        self.ensure_mount_is_used()
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['MountFoodKey'], wm_command=win32con.WM_KEYDOWN, extended_key=self.config['MountFoodKeyExt'], previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['MountFoodKey'], wm_command=win32con.WM_KEYUP, extended_key=self.config['MountFoodKeyExt'])
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Looter', option='mountfoodkey'))
+        if self.ensure_mount_is_used():
+            time.sleep(0.4)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, self.config['MountFoodKey'], lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, self.config['MountFoodKey'], lparam_keyup)
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
     def toggle_mount(self):
 
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=self.config['MountKey'], wm_command=win32con.WM_KEYDOWN, extended_key=self.config['MountKeyExt'], previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=self.config['MountKey'], wm_command=win32con.WM_KEYUP, extended_key=self.config['MountKeyExt'])
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Looter', option='mountkey'))
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, self.config['MountKey'], lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, self.config['MountKey'], lparam_keyup)
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
     def ensure_mount_is_used(self):
 
-        if pyautogui.locateOnScreen(image=self.config['MountImg'], region=self.client.box, confidence=0.8) is None:
+        if pyautogui.locateOnScreen(image=self.config.get(section='Mount Image', option='mount_icon'), region=self.client.box, confidence=0.99) is None:
             self.toggle_mount()
+            return 1
+        return 0
 
     def map_sequence_1(self):
 
