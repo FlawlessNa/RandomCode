@@ -58,7 +58,7 @@ class LooterManager(ClientManager):
 
     def ensure_mount_is_used(self):
 
-        if pyautogui.locateOnScreen(image=self.config.get(section='Mount Image', option='mount_icon'), region=self.client.box, confidence=0.99) is None:
+        if pyautogui.locateOnScreen(image=self.config.get(section='Mount Image', option='mount_icon'), region=self.client.box, confidence=0.95) is None:
             self.toggle_mount()
             return 1
         return 0
@@ -76,9 +76,7 @@ class LooterManager(ClientManager):
 
     def map_sequence_2(self):
 
-        cond1 = """pyautogui.locateOnScreen(image='KeyImages/MapNavigation/Target_Sequence2_Pole.png',
-                                        region=self.client.box,
-                                        confidence=0.9) != None"""
+        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Map Images', option='target_sequence_2'), region=self.client.box, confidence=0.9) != None"""
         self.jump_left_until(expression=cond1)
         time.sleep(0.2)
         self.jump()
@@ -86,10 +84,8 @@ class LooterManager(ClientManager):
 
     def map_sequence_3(self):
 
-        cond1 = """pyautogui.locateOnScreen(image='KeyImages/MapNavigation/BackHead.png',
-                                        region=self.client.box,
-                                        confidence=0.9) != None"""
-        self.jump_right_for(5)
+        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
+        self.jump_right_for(4)
         self.move_right_and_down_until(expression=cond1)
         self.move_down_for(0.4)
         self.jump_left()
@@ -97,10 +93,7 @@ class LooterManager(ClientManager):
 
     def map_sequence_4(self):
 
-        cond1 = """pyautogui.locateOnScreen(image='KeyImages/MapNavigation/Target_Sequence4_Portal.png',
-                                        region=self.client.box,
-                                        confidence=0.9) != None"""
-        # self.jump_down_until(expression=cond1)
+        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Map Images', option='target_sequence_4'), region=self.client.box, confidence=0.9) != None"""
         self.jump_down()
         time.sleep(0.6)
         self.jump_down()
