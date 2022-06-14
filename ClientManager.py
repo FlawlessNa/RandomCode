@@ -308,6 +308,9 @@ class ClientManager():
         self.client.activate()
         pydirectinput.click(x, y)
 
+    def check_pots_left(self):
+        pass
+
     def mapowner(self):
         self.client.activate()
         pydirectinput.press('1')

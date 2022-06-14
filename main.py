@@ -5,6 +5,8 @@ import win32con
 from LooterManager import LooterManager
 from MageManager import MageManager
 import multiprocessing
+import psutil
+
 
 configurations_loot={'EmptyCellValue': 236,
                 'EmptyCellThreshold': 0.99,
