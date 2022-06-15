@@ -450,7 +450,6 @@ class ClientManager():
 
     def change_channel(self, destination):
 
-        channels_table = np.array([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12], [13, 14, 15, 16, 17, 18], [19, 20, np.nan, np.nan, np.nan, np.nan]])
         nbr_keys = self.get_current_channel() - destination
 
         lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
@@ -493,4 +492,108 @@ class ClientManager():
         self.type_message('/leaveparty')
 
     def remake_party(self):
-        pass
+        invite_list = list(eval(self.config.get(section='IGN', option='ign_dict')).keys())
+        invite_list.remove(self.ign)
+        invite_list.insert(0, '/partyinvite')
+
+        self.allchat()
+        self.type_message(' '.join(invite_list))
+
+    def accept_party_invite(self):
+        x, y = pyautogui.locateCenterOnScreen(image=self.config.get(section='Misc Images', option='party_invite_prompt'), region=self.client.box, confidence=0.95)
+        pyautogui.doubleClick(x, y)
+
+    def setup_hp_threshold(self):
+        nbr_ticks_right = eval(self.config.get(section='MP Threshold', option='threshold_dict'))[self.ign]
+        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+        lparam_keyup_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYUP, extended_key=1)
+        lparam_keydown_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+        lparam_keyup_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
+        lparam_keydown_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+        lparam_keyup_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
+        time.sleep(0.05)
+        for i in range(2):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown_up)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup_up)
+            time.sleep(0.05)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        time.sleep(0.05)
+
+        for i in range(7):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_TAB, lparam_keydown_tab)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_TAB, lparam_keyup_tab)
+            time.sleep(0.05)
+
+        for i in range(20):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_LEFT, lparam_keydown_left)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup_left)
+            time.sleep(0.05)
+
+        for i in range(nbr_ticks_right):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown_right)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup_right)
+            time.sleep(0.05)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        time.sleep(0.05)
+
+    def setup_mp_threshold(self):
+        nbr_ticks_right = eval(self.config.get(section='MP Threshold', option='threshold_dict'))[self.ign]
+        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+        lparam_keyup_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYUP, extended_key=1)
+        lparam_keydown_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+        lparam_keyup_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
+        lparam_keydown_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+        lparam_keyup_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
+        time.sleep(0.05)
+        for i in range(2):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown_up)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup_up)
+            time.sleep(0.05)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        time.sleep(0.05)
+
+        for i in range(8):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_TAB, lparam_keydown_tab)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_TAB, lparam_keyup_tab)
+            time.sleep(0.05)
+
+        for i in range(20):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_LEFT, lparam_keydown_left)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup_left)
+            time.sleep(0.05)
+
+        for i in range(nbr_ticks_right):
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown_right)
+            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup_right)
+            time.sleep(0.05)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        time.sleep(0.05)
+
+
+
