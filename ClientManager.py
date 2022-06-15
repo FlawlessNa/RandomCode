@@ -15,17 +15,13 @@ class ClientManager():
         self.config = config
         self.ign = ign
         if eval(self.config.get(section='Startup Config', option='open_clients')):
-            # username = input("Enter Username for {}".format(self.ign))
-            # password = input("Enter Password for {}".format(self.ign))
-            # pic = input("Enter PIC for {}".format(self.ign))
-            username = 'FlawlessNa'
-            password = 'nawo2593'
-            pic = '4873123'
+            username, password, pic = self.config.get(section='Login Credentials', option='credentials')[self.ign]
             self.open(char_type=self.get_char_type())
             self.login(username, password, pic)
-        else:
-            self.client = self.get_window_from_ign(ign)
-        self.current_channel = None
+            # When login through python, default channel will be 8 automatically
+            self.set_current_channel(8)
+
+        self.client = self.get_window_from_ign(ign)
         self.hwnd = self.client._hWnd
 
     def get_char_type(self):
@@ -69,9 +65,6 @@ class ClientManager():
             pyautogui.click(x, y)
             time.sleep(0.1)
         pyautogui.press('enter')
-
-        # Again, when looking through python, automatically defaults to channel 8
-        self.set_current_channel(8)
 
     def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
 

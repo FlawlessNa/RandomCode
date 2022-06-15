@@ -14,10 +14,12 @@ user = 'Nass'
 config = ConfigParser()
 config.read('common_config.ini')
 
+
 if user == 'Nass':
     config.read('config_nass.ini')
 else:
     config.read('config_lec.ini')
+config.read(config.get(section='Login Credentials', option='path'))
 
 # Guarding = LooterManager(config=config, ign='Guarding')
 LegalizeIt = LooterManager(config=config, ign='LegalizeIt')
