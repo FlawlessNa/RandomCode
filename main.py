@@ -8,21 +8,23 @@ from MageManager import MageManager
 import multiprocessing
 import psutil
 
-
 user = 'Nass'
-
 config = ConfigParser()
 config.read('common_config.ini')
-
 
 if user == 'Nass':
     config.read('config_nass.ini')
 else:
-    config.read('config_lec.ini')
+    config.read('config_lec.ini') # TODO
 config.read(config.get(section='Login Credentials', option='path'))
 
+
 # Guarding = LooterManager(config=config, ign='Guarding')
-LegalizeIt = LooterManager(config=config, ign='LegalizeIt')
+# Goldmine1 = MageManager(config=config, ign='Goldmine1')
+# Goldmine2 = MageManager(config=config, ign='Goldmine2')
+# Goldmine3 = MageManager(config=config, ign='Goldmine3')
+LegalizeIt = MageManager(config=config, ign='LegalizeIt')
+
 # Goldmine1 = MageManager(config=config)
 
 def loot():
@@ -41,7 +43,7 @@ def farm2():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    LegalizeIt.change_channel(3)
+    LegalizeIt.move_to_car()
     # Guarding.ensure_mount_is_used()
     # Guarding.map_sequence_1()
     # Guarding.map_sequence_2()

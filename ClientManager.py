@@ -6,6 +6,7 @@ import win32api
 import time
 import pyautogui
 import pydirectinput
+import random
 import ctypes
 from ctypes import wintypes
 
@@ -15,13 +16,13 @@ class ClientManager():
         self.config = config
         self.ign = ign
         if eval(self.config.get(section='Startup Config', option='open_clients')):
-            username, password, pic = self.config.get(section='Login Credentials', option='credentials')[self.ign]
+            username, password, pic = eval(self.config.get(section='Login Credentials', option='credentials'))[self.ign]
             self.open(char_type=self.get_char_type())
             self.login(username, password, pic)
             # When login through python, default channel will be 8 automatically
             self.set_current_channel(8)
-
         self.client = self.get_window_from_ign(ign)
+        self.reposition_client(eval(self.config.get(section='Clients Positioning', option='position_dict'))[self.ign])
         self.hwnd = self.client._hWnd
 
     def get_char_type(self):
@@ -59,12 +60,20 @@ class ClientManager():
             time.sleep(0.05)
         pyautogui.press('enter')
         list_keys = eval(self.config.get(section='Login Images', option='pic_keys'))
+        time.sleep(2)
 
         for key in pic:
             x, y = pyautogui.locateCenterOnScreen(list_keys[[key in i for i in list_keys].index(True)])
             pyautogui.click(x, y)
+            # Must move away the cursor such that it doesn't hinder the next call to locateOnScreen
+            pyautogui.moveTo(random.randint(1500, 2000), random.randint(1000, 1400), 0.3, pyautogui.easeInQuad)
             time.sleep(0.1)
         pyautogui.press('enter')
+        time.sleep(4)
+
+    def reposition_client(self, position):
+        x, y = position
+        self.client.moveTo(x, y)
 
     def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
 
@@ -400,43 +409,35 @@ class ClientManager():
             win32api.PostMessage(self.hwnd, win32con.WM_CHAR, ord(char), lparam_char)
             time.sleep(0.05)
 
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
         time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+
+        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
+        time.sleep(0.05)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
+
+    def allchat(self):
+        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='allchatkey'))
+
+        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
+        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
+        time.sleep(0.05)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
     def mapowner(self):
 
-        def allchat():
-            key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='allchatkey'))
+        self.allchat()
+        self.type_message('~mapowner')
 
-            lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-            lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-            time.sleep(0.05)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
-
-        def tilde_symbol():
-            key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='tildekey'))
-
-            lparam_char = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-
-            win32api.PostMessage(self.hwnd, win32con.WM_CHAR, 0x7E, lparam_char)
-            time.sleep(0.05)
-
-        allchat()
-        tilde_symbol()
-        self.type_message('mapowner')
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown)
-        time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup)
 
     def get_current_channel(self):
         if self.current_channel is None:
@@ -485,3 +486,11 @@ class ClientManager():
         win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
         self.set_current_channel(destination)
+
+    def leave_party(self):
+        # This is to reset the entire party to make sure it is properly set
+        self.allchat()
+        self.type_message('/leaveparty')
+
+    def remake_party(self):
+        pass

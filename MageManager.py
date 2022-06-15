@@ -73,9 +73,28 @@ class MageManager(ClientManager):
         else:
             return None
 
+    def move_to_car(self):
+        loop = True
+        all_images = eval(self.config.get(section='MOB Images', option='veetron'))
+        all_images.extend(eval(self.config.get(section='MOB Images', option='berserkie')))
+        while loop:
+            self.cast_ult()
+            time.sleep(2)
+            if self.detect_mobs_multi_image(all_images) == 0:
+                self.move_right_for(0.65)
+                self.teleport_right()
+                time.sleep(0.1)
+                self.jump()
+            loop = False
 
     def detect_mobs(self, mob_image):
         return len(list(pyautogui.locateAllOnScreen(image=mob_image, region=self.client.box, confidence=0.9)))
+
+    def detect_mobs_multi_image(self, mob_images):
+        nbr_mobs = 0
+        for image in mob_images:
+            nbr_mobs += len(list(pyautogui.locateAllOnScreen(image=image, region=self.client.box, confidence=0.9)))
+        return nbr_mobs
 
     def farm_mode(self):
         while True:
