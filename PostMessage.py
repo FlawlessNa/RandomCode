@@ -83,3 +83,5 @@ def pyPostMessage(action, key_config, hwnd, repeat_count=1, previous_key_state=1
 
     else:
         pass
+
+    time.sleep(0.05)

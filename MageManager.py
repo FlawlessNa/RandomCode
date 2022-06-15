@@ -106,9 +106,3 @@ class MageManager(ClientManager):
                 self.cast_ult()
                 time.sleep(2)
                 self.reposition()
-
-# LegalizeIt = MageManager(config=configurations)
-# LegalizeIt.teleport_right()
-# LegalizeIt.farm_mode('KeyImages/MapNavigation/Top_Map_Position.png')
-# LegalizeIt.teleport_left()
-# LegalizeIt.farm_mode()

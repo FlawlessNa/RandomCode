@@ -82,41 +82,6 @@ class ClientManager():
         x, y = position
         self.client.moveTo(x, y)
 
-    def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
-
-        assert repeat_count < 2 ** 16
-
-        if scan_code is None:
-            scan_code = win32api.MapVirtualKey(key, 0)
-
-        if wm_command == win32con.WM_KEYDOWN:
-            context_code = 0
-            transition_state = 0
-
-        elif wm_command == win32con.WM_KEYUP:
-            context_code = 0
-            transition_state = 1
-
-        elif wm_command == win32con.WM_SYSKEYDOWN:
-            if key == win32con.VK_MENU:
-                context_code = 1
-            else:
-                context_code = 0
-            transition_state = 0
-
-        elif wm_command == win32con.WM_SYSKEYUP:
-            if key == win32con.VK_MENU:
-                context_code = 1
-            else:
-                context_code = 0
-            transition_state = 1
-
-        else:
-            pass
-
-        return int(format(transition_state, '01b') + format(previous_key_state, '01b') + format(context_code, '01b') + format(0, '04b') + \
-               format(extended_key, '01b') + format(scan_code, '08b') + format(repeat_count, '016b'), base=2)
-
     def get_window_from_ign(self, ign):
         ign_dict = eval(self.config.get(section='IGN', option='ign_dict'))
         assert ign in ign_dict.keys(), "The IGN provided is not in the configured list"
@@ -383,10 +348,8 @@ class ClientManager():
         # This assume all characters are "standard" (from A-Z, 0-9)
         for char in message:
             pyPostMessage('write', [ord(char), 0], self.hwnd)
-            time.sleep(0.05)
 
         pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
-        time.sleep(0.05)
         pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
 
     def mapowner(self):
@@ -409,38 +372,19 @@ class ClientManager():
 
         nbr_keys = self.get_current_channel() - destination
 
-        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
-        time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
-        time.sleep(0.05)
+        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
         if nbr_keys < 0:
-            lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-            lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYUP, extended_key=1)
-
             for i in range(abs(nbr_keys)):
-                win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown)
-                win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup)
-                time.sleep(0.05)
+                pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
 
         elif nbr_keys > 0:
-            lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_LEFT, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-            lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_LEFT, wm_command=win32con.WM_KEYUP, extended_key=1)
-
             for i in range(nbr_keys):
-                win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_LEFT, lparam_keydown)
-                win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup)
-                time.sleep(0.05)
+                pyPostMessage('press', [win32con.VK_LEFT, 1], self.hwnd)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+
         self.set_current_channel(destination)
 
     def leave_party(self):
@@ -461,96 +405,51 @@ class ClientManager():
         pyautogui.doubleClick(x, y)
 
     def setup_hp_threshold(self):
-        nbr_ticks_right = eval(self.config.get(section='MP Threshold', option='threshold_dict'))[self.ign]
-        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-        lparam_keyup_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYUP, extended_key=1)
-        lparam_keydown_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-        lparam_keyup_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
-        lparam_keydown_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-        lparam_keyup_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
-        time.sleep(0.05)
+        nbr_ticks_right = eval(self.config.get(section='HP Threshold', option='threshold_dict'))[self.ign]
+
+        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
         for i in range(2):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown_up)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup_up)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
-        time.sleep(0.05)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
+        # Tab all the way down until reaching the HP threshold selection
         for i in range(7):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_TAB, lparam_keydown_tab)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_TAB, lparam_keyup_tab)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
 
+        # Turn the threshold all the way down to the bare minimum
         for i in range(20):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_LEFT, lparam_keydown_left)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup_left)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_LEFT, 1], self.hwnd)
 
+        # Reset the threshold to the desired value
         for i in range(nbr_ticks_right):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown_right)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup_right)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
-        time.sleep(0.05)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
     def setup_mp_threshold(self):
         nbr_ticks_right = eval(self.config.get(section='MP Threshold', option='threshold_dict'))[self.ign]
-        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-        lparam_keyup_up = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYUP, extended_key=1)
-        lparam_keydown_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_tab = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=0)
-        lparam_keydown_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-        lparam_keyup_left = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
-        lparam_keydown_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
-        lparam_keyup_right = self.construct_lparams(repeat_count=1, key=win32con.VK_TAB, wm_command=win32con.WM_KEYUP, extended_key=1)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
-        time.sleep(0.05)
+        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
         for i in range(2):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown_up)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup_up)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
-        time.sleep(0.05)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
+        # Tab all the way down until reaching the MP threshold selection
         for i in range(8):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_TAB, lparam_keydown_tab)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_TAB, lparam_keyup_tab)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
 
+        # Turn the threshold all the way down to the bare minimum
         for i in range(20):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_LEFT, lparam_keydown_left)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup_left)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_LEFT, 1], self.hwnd)
 
+        # Reset the threshold to the desired value
         for i in range(nbr_ticks_right):
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown_right)
-            win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup_right)
-            time.sleep(0.05)
+            pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
-        time.sleep(0.05)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
     def ensure_pet_is_on(self):
         pass

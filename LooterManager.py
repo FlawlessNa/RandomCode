@@ -99,13 +99,3 @@ class LooterManager(ClientManager):
         self.jump_down()
         time.sleep(1)
         self.move_left_until(expression=cond1)
-
-
-# Guarding = LooterManager(config=configurations)
-# Guarding.use_stance()
-# Guarding.ensure_mount_is_used()
-# Guarding.map_sequence_1()
-# Guarding.map_sequence_2()
-# Guarding.map_sequence_3()
-# Guarding.map_sequence_4()
-# print('ok')
