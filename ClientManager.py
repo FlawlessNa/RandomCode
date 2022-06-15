@@ -1,5 +1,6 @@
 import os
 import win32gui
+import numpy as np
 import win32con
 import win32api
 import time
@@ -13,11 +14,64 @@ class ClientManager():
     def __init__(self, config, ign):
         self.config = config
         self.ign = ign
-        self.client = self.get_window_from_ign(ign)
+        if eval(self.config.get(section='Startup Config', option='open_clients')):
+            # username = input("Enter Username for {}".format(self.ign))
+            # password = input("Enter Password for {}".format(self.ign))
+            # pic = input("Enter PIC for {}".format(self.ign))
+            username = 'FlawlessNa'
+            password = 'nawo2593'
+            pic = '4873123'
+            self.open(char_type=self.get_char_type())
+            self.login(username, password, pic)
+        else:
+            self.client = self.get_window_from_ign(ign)
+        self.current_channel = None
         self.hwnd = self.client._hWnd
 
-    def open(self, resolution):
-        pass
+    def get_char_type(self):
+        return eval(self.config.get(section='IGN', option='ign_dict'))[self.ign]
+
+    def open(self, char_type):
+        # Apparently, opening the 800x600 doesnt work, but we can instead open the shortcut on the Desktop and it works..
+        # Also Interesting Note: using os.system would also cause the client to run, and the client is automatically killed once the execution of the program ends!
+
+        if eval(self.config.get(section='Kill Clients After Execution', option='value')):
+            os.system(eval(self.config.get(section='Client Path', option='path'))[self.config.get(section='RESOLUTIONS', option=char_type)])
+        else:
+            os.startfile(eval(self.config.get(section='Client Path', option='path'))[self.config.get(section='RESOLUTIONS', option=char_type)])
+        time.sleep(10)
+
+    def login(self, username, pw, pic):
+        # Note: For now, login automatically defaults into channel 8
+        pyautogui.keyDown('shiftleft')
+        pyautogui.press('tab')
+        pyautogui.keyUp('shiftleft')
+        pyautogui.write(username)
+        pyautogui.press('tab')
+        pyautogui.write(pw)
+        pyautogui.press('enter')
+        time.sleep(3)
+        pyautogui.press('enter')
+        time.sleep(1)
+        x, y = pyautogui.locateCenterOnScreen(self.config.get(section='Login Images', option='channel_to_click'))
+        pyautogui.doubleClick(x, y+5)
+        time.sleep(1)
+        nbr_move_towards_right = eval(self.config.get(section='Login Character Position', option='position_dict'))[self.ign] - 1
+
+        for i in range(nbr_move_towards_right):
+            pyautogui.press('right')
+            time.sleep(0.05)
+        pyautogui.press('enter')
+        list_keys = eval(self.config.get(section='Login Images', option='pic_keys'))
+
+        for key in pic:
+            x, y = pyautogui.locateCenterOnScreen(list_keys[[key in i for i in list_keys].index(True)])
+            pyautogui.click(x, y)
+            time.sleep(0.1)
+        pyautogui.press('enter')
+
+        # Again, when looking through python, automatically defaults to channel 8
+        self.set_current_channel(8)
 
     def construct_lparams(self, repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
 
@@ -56,11 +110,9 @@ class ClientManager():
 
     def get_window_from_ign(self, ign):
         ign_dict = eval(self.config.get(section='IGN', option='ign_dict'))
-        assert ign in ign_dict.values(), "The IGN provided is not in the configured list"
-        for key, val in ign_dict.items():
-            if val == ign:
-                char_type = 'mages' if 'mage' in key else 'looter'
-                break
+        assert ign in ign_dict.keys(), "The IGN provided is not in the configured list"
+        char_type = self.get_char_type()
+
         all_windows = pyautogui.getWindowsWithTitle('MapleRoyals')
         try:
             image = eval(self.config.get(section='IGN Images', option=char_type))[ign]
@@ -97,21 +149,21 @@ class ClientManager():
 
     def move_right_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 140% speed.
-        time = distance / ((200 / 1.4) * self.char_speed)
+        time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_right_for(time)
 
     def move_left_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 140% speed.
-        time = distance / ((200 / 1.4) * self.char_speed)
+        time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_left_for(time)
 
     def move_up_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 140% speed.
-        time = distance / ((200 / 1.4) * self.char_speed)
+        time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_up_for(time)
 
     def move_down_by(self, distance):
-        time = distance / ((200 / 1.4) * self.char_speed)
+        time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_left_for(time)
 
     def move_right_for(self, duration):
@@ -341,6 +393,9 @@ class ClientManager():
         self.client.activate()
         pydirectinput.click(x, y)
 
+    def move_cursor_to(self, x, y):
+        pass
+
     def check_pots_left(self):
         pass
 
@@ -389,3 +444,51 @@ class ClientManager():
         win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown)
         time.sleep(0.05)
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup)
+
+    def get_current_channel(self):
+        if self.current_channel is None:
+            pass
+        else:
+            return self.current_channel
+
+    def set_current_channel(self, channel):
+        self.current_channel = channel
+
+    def change_channel(self, destination):
+
+        channels_table = np.array([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12], [13, 14, 15, 16, 17, 18], [19, 20, np.nan, np.nan, np.nan, np.nan]])
+        nbr_keys = self.get_current_channel() - destination
+
+        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
+        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
+        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
+        time.sleep(0.05)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        time.sleep(0.05)
+
+        if nbr_keys < 0:
+            lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+            lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_RIGHT, wm_command=win32con.WM_KEYUP, extended_key=1)
+
+            for i in range(abs(nbr_keys)):
+                win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RIGHT, lparam_keydown)
+                win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RIGHT, lparam_keyup)
+                time.sleep(0.05)
+
+        elif nbr_keys > 0:
+            lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_LEFT, wm_command=win32con.WM_KEYDOWN, extended_key=1, previous_key_state=0)
+            lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_LEFT, wm_command=win32con.WM_KEYUP, extended_key=1)
+
+            for i in range(nbr_keys):
+                win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_LEFT, lparam_keydown)
+                win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_LEFT, lparam_keyup)
+                time.sleep(0.05)
+
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
+        self.set_current_channel(destination)

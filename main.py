@@ -20,7 +20,7 @@ else:
     config.read('config_lec.ini')
 
 # Guarding = LooterManager(config=config, ign='Guarding')
-LegalizeIt = MageManager(config=config, ign='LegalizeIt')
+LegalizeIt = LooterManager(config=config, ign='LegalizeIt')
 # Goldmine1 = MageManager(config=config)
 
 def loot():
@@ -39,7 +39,7 @@ def farm2():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    LegalizeIt.mapowner()
+    LegalizeIt.change_channel(3)
     # Guarding.ensure_mount_is_used()
     # Guarding.map_sequence_1()
     # Guarding.map_sequence_2()

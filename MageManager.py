@@ -77,7 +77,7 @@ class MageManager(ClientManager):
     def detect_mobs(self, mob_image):
         return len(list(pyautogui.locateAllOnScreen(image=mob_image, region=self.client.box, confidence=0.9)))
 
-    def farm_mode(self, target_position):
+    def farm_mode(self):
         while True:
             nbr_mobs = len(list(pyautogui.locateAllOnScreen(image='KeyImages/Veetron_left.png', region=self.client.box, confidence=0.9))) + \
                        len(list(pyautogui.locateAllOnScreen(image='KeyImages/Veetron_right.png', region=self.client.box, confidence=0.9))) + \
@@ -85,10 +85,8 @@ class MageManager(ClientManager):
                        len(list(pyautogui.locateAllOnScreen(image='KeyImages/Berserkie_right.png', region=self.client.box, confidence=0.9)))
             if nbr_mobs >= 5:
                 self.cast_ult()
-                time.sleep(1.5)
-                self.reposition(target_position)
-                time.sleep(4)
-
+                time.sleep(2)
+                self.reposition()
 
 # LegalizeIt = MageManager(config=configurations)
 # LegalizeIt.teleport_right()
