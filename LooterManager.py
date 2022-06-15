@@ -4,6 +4,7 @@ import pydirectinput
 import time
 import win32api
 import win32con
+from PostMessage import pyPostMessage
 
 
 # https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
@@ -16,14 +17,8 @@ class LooterManager(ClientManager):
 
     def use_stance(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Looter', option='stancekey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
-
+        key_config = eval(self.config.get(section='KEYBINDS - Looter', option='stancekey'))
+        pyPostMessage('press', key_config, self.hwnd)
         time.sleep(0.8)
 
     def chat_feed_is_displayed(self):
@@ -36,25 +31,16 @@ class LooterManager(ClientManager):
 
     def feed_mount(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Looter', option='mountfoodkey'))
+        key_config = eval(self.config.get(section='KEYBINDS - Looter', option='mountfoodkey'))
         if self.ensure_mount_is_used():
             time.sleep(0.4)
 
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        pyPostMessage('press', key_config, self.hwnd)
 
     def toggle_mount(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Looter', option='mountkey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Looter', option='mountkey'))
+        pyPostMessage('press', key_config, self.hwnd)
 
     def ensure_mount_is_used(self):
 
