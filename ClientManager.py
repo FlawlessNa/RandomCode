@@ -7,9 +7,11 @@ import time
 import pyautogui
 import pydirectinput
 import random
+from PostMessage import pyPostMessage
 import ctypes
 from ctypes import wintypes
 
+# TODO: create a PostMessage function wrapper to improve readability. Store that function in its own .py utils file
 class ClientManager():
     # Pass in the IGN of the client this instance should control
     def __init__(self, config, ign):
@@ -54,6 +56,11 @@ class ClientManager():
         pyautogui.doubleClick(x, y+5)
         time.sleep(1)
         nbr_move_towards_right = eval(self.config.get(section='Login Character Position', option='position_dict'))[self.ign] - 1
+
+        for i in range(5):
+            # This is to ensure that we always start character selection from the far left
+            pyautogui.press('left')
+            time.sleep(0.05)
 
         for i in range(nbr_move_towards_right):
             pyautogui.press('right')
@@ -132,13 +139,8 @@ class ClientManager():
 
     def toggle_character_stats(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='characterstatskey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='characterstatskey'))
+        pyPostMessage('press', key_config, self.hwnd)
 
     def get_char_speed(self):
         # TODO: read in actual speed from the character stats menu
@@ -181,12 +183,9 @@ class ClientManager():
         pydirectinput.keyUp('left')
 
     def move_up(self):
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYDOWN, extended_key=1,
-                                                previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=win32con.VK_UP, wm_command=win32con.WM_KEYUP, extended_key=1)
 
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_UP, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_UP, lparam_keyup)
+        key_config = [win32con.VK_UP, 1]
+        pyPostMessage('press', key_config, self.hwnd)
 
     def move_up_for(self, duration):
         self.client.activate()
@@ -266,30 +265,13 @@ class ClientManager():
 
     def jump(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='jumpkey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='jumpkey'))
+        pyPostMessage('press', key_config, self.hwnd)
 
     def jump_for(self, duration):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='jumpkey'))
-
-        lparam_keydown_ini = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYDOWN, extended_key=extended_param, previous_key_state=0)
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYDOWN, extended_key=extended_param, previous_key_state=1)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_SYSKEYUP, extended_key=extended_param)
-
-        now = time.time()
-
-        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown_ini)
-        while time.time() - now < duration:
-            win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYDOWN, self.config['JumpKey'], lparam_keydown)
-            time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_SYSKEYUP, self.config['JumpKey'], lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='jumpkey'))
+        pyPostMessage('hold', key_config, self.hwnd, duration=duration)
 
     def jump_right(self):
         self.client.activate()
@@ -365,13 +347,8 @@ class ClientManager():
 
     def toggle_inventory(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='inventorykey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='inventorykey'))
+        pyPostMessage('press', key_config, self.hwnd)
 
     def click(self):
         self.client.activate()
@@ -379,13 +356,8 @@ class ClientManager():
 
     def feed_pet(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='petfoodkey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='petfoodkey'))
+        pyPostMessage('press', key_config, self.hwnd)
 
     def feed_multiple_pets(self, nbr_press):
         for i in range(nbr_press):
@@ -401,37 +373,21 @@ class ClientManager():
     def check_pots_left(self):
         pass
 
+    def allchat(self):
+
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='allchatkey'))
+        pyPostMessage('press', key_config, self.hwnd)
+
     def type_message(self, message):
 
         # This assume all characters are "standard" (from A-Z, 0-9)
         for char in message:
-            lparam_char = self.construct_lparams(repeat_count=1, key=ord(char), wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-            win32api.PostMessage(self.hwnd, win32con.WM_CHAR, ord(char), lparam_char)
+            pyPostMessage('write', [ord(char), 0], self.hwnd)
             time.sleep(0.05)
 
-        lparam_keydown_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_enter = self.construct_lparams(repeat_count=1, key=win32con.VK_RETURN, wm_command=win32con.WM_KEYUP, extended_key=0)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, lparam_keydown_enter)
+        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
         time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
-
-        lparam_keydown_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYDOWN, extended_key=0, previous_key_state=0)
-        lparam_keyup_esc = self.construct_lparams(repeat_count=1, key=win32con.VK_ESCAPE, wm_command=win32con.WM_KEYUP, extended_key=0)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, win32con.VK_ESCAPE, lparam_keydown_esc)
-        time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_ESCAPE, lparam_keyup_esc)
-
-    def allchat(self):
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Common', option='allchatkey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        time.sleep(0.05)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
 
     def mapowner(self):
 
@@ -440,6 +396,7 @@ class ClientManager():
 
 
     def get_current_channel(self):
+
         if self.current_channel is None:
             pass
         else:
@@ -595,5 +552,12 @@ class ClientManager():
         win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, lparam_keyup_enter)
         time.sleep(0.05)
 
+    def ensure_pet_is_on(self):
+        pass
 
+    def setup_hp_pots(self):
+        pass
+
+    def setup_mp_pots(self):
+        pass
 
