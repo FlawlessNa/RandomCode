@@ -32,8 +32,7 @@ class LooterManager(ClientManager):
     def feed_mount(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Looter', option='mountfoodkey'))
-        if self.ensure_mount_is_used():
-            time.sleep(0.4)
+        self.ensure_mount_is_used()
 
         pyPostMessage('press', key_config, self.hwnd)
 
@@ -41,6 +40,7 @@ class LooterManager(ClientManager):
 
         key_config = eval(self.config.get(section='KEYBINDS - Looter', option='mountkey'))
         pyPostMessage('press', key_config, self.hwnd)
+        time.sleep(0.3)
 
     def ensure_mount_is_used(self):
 

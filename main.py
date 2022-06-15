@@ -19,11 +19,11 @@ else:
 config.read(config.get(section='Login Credentials', option='path'))
 
 
-Guarding = LooterManager(config=config, ign='Guarding')
+# Guarding = LooterManager(config=config, ign='Guarding')
 # Goldmine1 = MageManager(config=config, ign='Goldmine1')
 # Goldmine2 = MageManager(config=config, ign='Goldmine2')
 # Goldmine3 = MageManager(config=config, ign='Goldmine3')
-# LegalizeIt = MageManager(config=config, ign='LegalizeIt')
+LegalizeIt = MageManager(config=config, ign='LegalizeIt')
 
 # Goldmine1 = MageManager(config=config)
 
@@ -43,7 +43,8 @@ def farm2():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    Guarding.feed_mount()
+    LegalizeIt.cast_ult()
+    LegalizeIt.teleport_right()
     # Guarding.setup_hp_threshold()
     # Guarding.setup_mp_threshold()
     # Guarding.ensure_mount_is_used()

@@ -4,6 +4,7 @@ import pyautogui
 import win32con
 import win32api
 import time
+from PostMessage import pyPostMessage
 
 class MageManager(ClientManager):
     def __init__(self, config, ign):
@@ -11,12 +12,9 @@ class MageManager(ClientManager):
 
     def cast_ult(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Mage', option='ultkey'))
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Mage', option='ultkey'))
+        pyPostMessage('press', key_config, self.hwnd)
+        time.sleep(2.8)
 
     def teleport_left(self):
 
@@ -33,23 +31,14 @@ class MageManager(ClientManager):
 
     def cast_mg(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Mage', option='mgkey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Mage', option='mgkey'))
+        pyPostMessage('press', key_config, self.hwnd)
+        time.sleep(0.5)
 
     def cast_infinity(self):
 
-        key, extended_param = eval(self.config.get(section='KEYBINDS - Mage', option='infinitykey'))
-
-        lparam_keydown = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
-        lparam_keyup = self.construct_lparams(repeat_count=1, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param)
-
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        win32api.PostMessage(self.hwnd, win32con.WM_KEYUP, key, lparam_keyup)
+        key_config = eval(self.config.get(section='KEYBINDS - Mage', option='infinitykey'))
+        time.sleep(0.5)
 
     def reposition(self):
         char_pos = self.find_image(image=self.config.get(section='Character Images', option='mage_medal'))
