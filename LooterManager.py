@@ -49,10 +49,60 @@ class LooterManager(ClientManager):
             return 1
         return 0
 
+    def find_self(self):
+        image = self.config.get(section='Character Images', option='looter_guildlogo')
+        return self.find_image(image)
+
+
+    def move_to_and_enter_door(self):
+
+        # This method should only be used after changing channel!
+        while pyautogui.locateOnScreen(self.config.get(section='Map Images', option='ulu_minimap'), region=self.client.box) is None:
+            self.toggle_minimap()
+
+        loop = True
+        self.move_right_by(666 - 322)
+        while loop:
+            self.move_to_target(target=self.config.get(section='Map Images', option='door'), acceptable_dist_range=[13, 37])
+            self.jump()
+            time.sleep(0.6)
+            self.move_up()
+            time.sleep(1)
+            loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_minimap'))
+
+    def move_to_and_enter_portal1(self):
+
+        # This method should only be used after entering door!
+        loop = True
+        while loop:
+            self.move_to_target(target=self.config.get(section='Map Images', option='CBD_portal1'), acceptable_dist_range=[18, 42])
+            self.move_up()
+            time.sleep(1)
+            loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_fm'))
+
+    def move_to_and_enter_fm(self):
+
+        loop = True
+        while loop:
+            self.move_to_target(target=self.config.get(section='Map Images', option='CBD_fm'), acceptable_dist_range=[10, 36])
+            self.move_up()
+            time.sleep(1)
+            loop = self.check_portal_success(self.config.get(section='Map Images', option='FM_minimap'))
+
+    def check_portal_success(self, image):
+        if pyautogui.locateOnScreen(image=image, region=self.client.box, confidence=0.9):
+            return False
+        else:
+            return True
+
+
+
+
+
     def map_sequence_1(self):
 
         cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
-        self.jump_right_for(5)
+        self.jump_right_for(4)
         self.move_right_and_down_until(expression=cond1)
 
         pydirectinput.keyDown('up')

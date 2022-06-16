@@ -117,7 +117,7 @@ class ClientManager():
 
 
     def move_right_by(self, distance):
-        # 1 sec is approximately equal to 200 pixel when character has 140% speed.
+        # 1 sec is approximately equal to 200 pixel when character has 140% speed. That's actually a bad estimate because the screen is also moving the pixels around
         time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_right_for(time)
 
@@ -127,7 +127,7 @@ class ClientManager():
         self.move_left_for(time)
 
     def move_up_by(self, distance):
-        # 1 sec is approximately equal to 200 pixel when character has 140% speed.
+        # 1 sec is approximately equal to 200 pixel when character has 170% speed.
         time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_up_for(time)
 
@@ -315,6 +315,11 @@ class ClientManager():
         key_config = eval(self.config.get(section='KEYBINDS - Common', option='inventorykey'))
         pyPostMessage('press', key_config, self.hwnd)
 
+    def toggle_minimap(self):
+
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='minimapkey'))
+        pyPostMessage('press', key_config, self.hwnd)
+
     def click(self):
         self.client.activate()
         pydirectinput.click()
@@ -460,3 +465,37 @@ class ClientManager():
     def setup_mp_pots(self):
         pass
 
+    def find_self(self):
+        pass
+
+    def find_image(self, image):
+        if pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8) is not None:
+            return pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8)
+        else:
+            return None
+
+    def move_to_target(self, target, acceptable_dist_range):
+
+        # The target must be visible within the client
+        if pyautogui.locateOnScreen(image=target, region=self.client.box, confidence=0.9) is None:
+            return False
+
+        min_dist, max_dist = acceptable_dist_range
+        loop = True
+        increment = 1
+        while loop:
+            current_pos = self.find_self()
+            target_pos = self.find_image(target)
+            if current_pos is None or target_pos is None:
+                continue  # This would happen if there are animations (such as an ult) blocking the target
+            else:
+                distance = target_pos.x - current_pos.x
+                print('Horizontal distance is {}'.format(distance))
+                if min_dist < distance < max_dist:
+                    return True
+                elif distance > 0:
+                    self.move_right_by(distance / increment)
+                    increment += 0.75
+                else:
+                    self.move_left_by(abs(distance / increment))
+                    increment += 0.75

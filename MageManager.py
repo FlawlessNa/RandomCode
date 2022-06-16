@@ -38,6 +38,13 @@ class MageManager(ClientManager):
     def cast_infinity(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='infinitykey'))
+        pyPostMessage('press', key_config, self.hwnd)
+        time.sleep(0.5)
+
+    def cast_door(self):
+
+        key_config = eval(self.config.get(section='KEYBINDS - Mage', option='doorkey'))
+        pyPostMessage('press', key_config, self.hwnd)
         time.sleep(0.5)
 
     def reposition(self):
@@ -55,12 +62,6 @@ class MageManager(ClientManager):
                 distance = too_far_right.x - char_pos.x
                 desired_distance = 1000
                 self.move_left_by(distance=desired_distance - distance)
-
-    def find_image(self, image):
-        if pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8) is not None:
-            return pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8)
-        else:
-            return None
 
     def move_to_car(self):
         loop = True
@@ -82,8 +83,12 @@ class MageManager(ClientManager):
     def detect_mobs_multi_image(self, mob_images):
         nbr_mobs = 0
         for image in mob_images:
-            nbr_mobs += len(list(pyautogui.locateAllOnScreen(image=image, region=self.client.box, confidence=0.9)))
+            nbr_mobs += self.detect_mobs(image)
         return nbr_mobs
+
+    def find_self(self):
+        image = self.config.get(section='Character Images', option='mage_medal')
+        return self.find_image(image)
 
     def farm_mode(self):
         while True:
