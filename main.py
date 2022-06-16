@@ -45,7 +45,7 @@ def farm2():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    Guarding.move_left_and_up_for(2)
+    Guarding.move_right_and_up_by(200)
     # Guarding.setup_hp_threshold()
     # Guarding.setup_mp_threshold()
     # Guarding.ensure_mount_is_used()
