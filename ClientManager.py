@@ -121,10 +121,18 @@ class ClientManager():
         time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_right_for(time)
 
+    def move_right_and_up_by(self, distance):
+        time = distance / ((200 / 1.4) * self.get_char_speed())
+        self.move_right_and_up_for(time)
+
     def move_left_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 140% speed.
         time = distance / ((200 / 1.4) * self.get_char_speed())
         self.move_left_for(time)
+
+    def move_left_and_up_by(self, distance):
+        time = distance / ((200 / 1.4) * self.get_char_speed())
+        self.move_left_and_up_for(time)
 
     def move_up_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 170% speed.
@@ -141,10 +149,28 @@ class ClientManager():
         time.sleep(duration)
         pydirectinput.keyUp('right')
 
+    def move_right_and_up_for(self, duration):
+        self.client.activate()
+        pydirectinput.keyDown('right')
+        time.sleep(0.8)
+        pydirectinput.keyDown('up')
+        time.sleep(duration - 0.8)
+        pydirectinput.keyUp('up')
+        pydirectinput.keyUp('right')
+
     def move_left_for(self, duration):
         self.client.activate()
         pydirectinput.keyDown('left')
         time.sleep(duration)
+        pydirectinput.keyUp('left')
+
+    def move_left_and_up_for(self, duration):
+        self.client.activate()
+        pydirectinput.keyDown('left')
+        time.sleep(0.8)
+        pydirectinput.keyDown('up')
+        time.sleep(duration - 0.8)
+        pydirectinput.keyUp('up')
         pydirectinput.keyUp('left')
 
     def move_up(self):
@@ -461,7 +487,7 @@ class ClientManager():
 
         pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-    def ensure_pet_is_on(self):
+    def turn_pet_on(self):
         pass
 
     def setup_hp_pots(self):

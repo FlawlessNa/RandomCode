@@ -54,6 +54,7 @@ class LooterManager(ClientManager):
 
     def move_to_and_enter_door(self):
 
+        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
         # This method should only be used after changing channel!
         while pyautogui.locateOnScreen(self.config.get(section='Map Images', option='ulu_minimap'), region=self.client.box) is None:
             self.toggle_minimap()
@@ -70,6 +71,7 @@ class LooterManager(ClientManager):
 
     def move_to_and_enter_portal1(self):
 
+        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
         # This method should only be used after entering door!
         loop = True
         while loop:
@@ -80,6 +82,7 @@ class LooterManager(ClientManager):
 
     def move_to_and_enter_fm(self):
 
+        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
         # This method should only be used after entering portal1
         loop = True
         while loop:
@@ -90,6 +93,7 @@ class LooterManager(ClientManager):
 
     def move_to_and_enter_portal2(self):
 
+        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
         # This method should only be used after leaving fm
         loop = True
         while loop:
@@ -102,6 +106,7 @@ class LooterManager(ClientManager):
 
     def move_to_and_enter_door_from_town(self):
 
+        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
         if not self.ensure_mount_is_used():
             self.toggle_mount()
         self.jump_right()

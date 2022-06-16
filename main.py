@@ -45,13 +45,7 @@ def farm2():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    Guarding.move_to_and_enter_door()
-    Guarding.move_to_and_enter_portal1()
-    Guarding.move_to_and_enter_fm()
-    Guarding.move_up()
-    time.sleep(1)
-    Guarding.move_to_and_enter_portal2()
-    Guarding.move_to_and_enter_door_from_town()
+    Guarding.move_left_and_up_for(2)
     # Guarding.setup_hp_threshold()
     # Guarding.setup_mp_threshold()
     # Guarding.ensure_mount_is_used()
