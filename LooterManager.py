@@ -24,10 +24,8 @@ class LooterManager(ClientManager):
     def chat_feed_is_displayed(self):
         if pyautogui.locateOnScreen(image='KeyImages/Feed_is_Displayed.png', region=self.client.box) is not None:
             return True
-        elif pyautogui.locateOnScreen(image='KeyImages/Feed_is_not_Displayed.png', region=self.client.box) is not None:
-            return False
         else:
-            return None
+            return False
 
     def feed_mount(self):
 
@@ -46,8 +44,8 @@ class LooterManager(ClientManager):
 
         if pyautogui.locateOnScreen(image=self.config.get(section='Mount Image', option='mount_icon'), region=self.client.box, confidence=0.95) is None:
             self.toggle_mount()
-            return 1
-        return 0
+            return True
+        return False
 
     def find_self(self):
         image = self.config.get(section='Character Images', option='looter_guildlogo')
@@ -82,12 +80,46 @@ class LooterManager(ClientManager):
 
     def move_to_and_enter_fm(self):
 
+        # This method should only be used after entering portal1
         loop = True
         while loop:
             self.move_to_target(target=self.config.get(section='Map Images', option='CBD_fm'), acceptable_dist_range=[10, 36])
             self.move_up()
             time.sleep(1)
             loop = self.check_portal_success(self.config.get(section='Map Images', option='FM_minimap'))
+
+    def move_to_and_enter_portal2(self):
+
+        # This method should only be used after leaving fm
+        loop = True
+        while loop:
+            self.move_to_target(target=self.config.get(section='Map Images', option='CBD_portal2'), acceptable_dist_range=[16, 40])
+            self.move_up()
+            time.sleep(2)
+            if self.chat_feed_is_displayed():
+                self.toggle_chatfeed()
+            loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_portal1'))
+
+    def move_to_and_enter_door_from_town(self):
+
+        if not self.ensure_mount_is_used():
+            self.toggle_mount()
+        self.jump_right()
+
+        loop = True
+        while loop:
+            self.move_to_target(target=self.config.get(section='Map Images', option='door'), acceptable_dist_range=[13, 37])
+            self.move_up()
+            time.sleep(1)
+            loop = self.check_portal_success(self.config.get(section='Map Images', option='ulu_minimap'))
+        self.toggle_mount()
+
+    def click_fm_storage(self):
+        # Values are hard-coded since location is never-changing. Prevents issues using LocateOnScreen as there may be characters/animations hindering the npc
+        self.click_at(60, 600)
+
+    def click_fm_seller(self):
+        self.click_at(575, 370)
 
     def check_portal_success(self, image):
         if pyautogui.locateOnScreen(image=image, region=self.client.box, confidence=0.9):

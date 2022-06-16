@@ -315,6 +315,11 @@ class ClientManager():
         key_config = eval(self.config.get(section='KEYBINDS - Common', option='inventorykey'))
         pyPostMessage('press', key_config, self.hwnd)
 
+    def toggle_chatfeed(self):
+
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='togglechatfeedkey'))
+        pyPostMessage('press', key_config, self.hwnd)
+
     def toggle_minimap(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Common', option='minimapkey'))
