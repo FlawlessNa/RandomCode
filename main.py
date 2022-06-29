@@ -1,13 +1,12 @@
-import ctypes
 import win32gui
-import pyautogui
 from configparser import ConfigParser
-import win32con
 from LooterManager import LooterManager
+from ImageDetection import find_image
 from MageManager import MageManager
 import multiprocessing
 import psutil
 import time
+import cv2
 
 user = 'Nass'
 config = ConfigParser()
@@ -20,7 +19,7 @@ else:
 config.read(config.get(section='Login Credentials', option='path'))
 
 
-Guarding = LooterManager(config=config, ign='Guarding')
+Guarding = LooterManager(config=config, ign='LegalizeIt')
 # Goldmine1 = MageManager(config=config, ign='Goldmine1')
 # Goldmine2 = MageManager(config=config, ign='Goldmine2')
 # Goldmine3 = MageManager(config=config, ign='Goldmine3')
@@ -45,7 +44,32 @@ def farm2():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    Guarding.move_right_and_up_by(200)
+    window_rect = win32gui.GetWindowRect(Guarding.hwnd)
+    loop_time = time.time()
+    images = []
+    for item in config.items(section='MOB Images'):
+        imgs = eval(item[1])
+        images.extend(imgs)
+    needles = [cv2.imread(image, cv2.IMREAD_COLOR) for image in images]
+
+    while(True):
+
+        haystack = Guarding.take_screenshot()
+        for needle in needles:
+            haystack = find_image(haystack, needle, threshold=0.8, method=cv2.TM_CCOEFF_NORMED)
+
+        cv2.imshow('Screenshots', haystack)
+
+        print('FPS {}'.format(1 / (time.time() - loop_time)))
+        loop_time = time.time()
+
+        if cv2.waitKey(1) == ord('q'):
+            cv2.destroyAllWindows()
+            break
+
+    # result = cv2.matchTemplate()
+
+    # Guarding.move_right_and_up_by(200)
     # Guarding.setup_hp_threshold()
     # Guarding.setup_mp_threshold()
     # Guarding.ensure_mount_is_used()

@@ -1,18 +1,22 @@
 import os
-import win32gui
-import numpy as np
 import win32con
-import win32api
+import cv2
 import time
 import pyautogui
 import pydirectinput
 import random
+import numpy as np
 from PostMessage import pyPostMessage
-import ctypes
-from ctypes import wintypes
+from ImageDetection import take_screenshot
 
-# TODO: create a PostMessage function wrapper to improve readability. Store that function in its own .py utils file
+
+
 class ClientManager():
+
+    titlebar_pixels = 30
+
+
+
     # Pass in the IGN of the client this instance should control
     def __init__(self, config, ign):
         self.config = config
@@ -26,6 +30,12 @@ class ClientManager():
         self.client = self.get_window_from_ign(ign)
         self.reposition_client(eval(self.config.get(section='Clients Positioning', option='position_dict'))[self.ign])
         self.hwnd = self.client._hWnd
+        self.dimensions = {
+            'width': self.client.width,
+            'height': self.client.height - self.titlebar_pixels,
+            'crop_x': 0,
+            'crop_y': self.titlebar_pixels
+        }
 
     def get_char_type(self):
         return eval(self.config.get(section='IGN', option='ign_dict'))[self.ign]
@@ -89,18 +99,27 @@ class ClientManager():
 
         all_windows = pyautogui.getWindowsWithTitle('MapleRoyals')
         try:
-            image = eval(self.config.get(section='IGN Images', option=char_type))[ign]
+            ign_image = eval(self.config.get(section='IGN Images', option=char_type))[ign]
         except NameError:
-            image = self.config.get(section='IGN Images', option=char_type)
+            ign_image = self.config.get(section='IGN Images', option=char_type)
 
         for client in all_windows:
 
-            # pyautogui only handles the primary monitor. It will return an error for a client that is not in primary
-            client.show()
-            if any([coordinate < 0 for coordinate in client.box]):
-                continue
-            if pyautogui.locateOnScreen(image=image, region=client.box):
+            haystack = take_screenshot(client, dim={
+                'width': client.width,
+                'height': client.height - self.titlebar_pixels,
+                'crop_x': 0,
+                'crop_y': self.titlebar_pixels
+            })
+            needle = cv2.imread(ign_image, cv2.IMREAD_COLOR)
+            result = cv2.matchTemplate(haystack, needle, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+
+            if max_val >= 0.98:
                 return client
+
+    def take_screenshot(self):
+        return take_screenshot(self.client, dim=self.dimensions)
 
     def toggle_character_stats(self):
 
@@ -451,7 +470,6 @@ class ClientManager():
 
         self.allchat()
         self.type_message('~mapowner')
-
 
     def get_current_channel(self):
 

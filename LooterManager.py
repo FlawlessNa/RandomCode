@@ -132,10 +132,6 @@ class LooterManager(ClientManager):
         else:
             return True
 
-
-
-
-
     def map_sequence_1(self):
 
         cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
