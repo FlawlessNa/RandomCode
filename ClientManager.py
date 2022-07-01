@@ -1,5 +1,6 @@
 import os
 import win32con
+import win32gui
 import cv2
 import time
 import pyautogui
@@ -10,12 +11,9 @@ from PostMessage import pyPostMessage
 from ImageDetection import take_screenshot
 
 
-
-class ClientManager():
+class ClientManager:
 
     titlebar_pixels = 30
-
-
 
     # Pass in the IGN of the client this instance should control
     def __init__(self, config, ign):
@@ -27,9 +25,13 @@ class ClientManager():
             self.login(username, password, pic)
             # When login through python, default channel will be 8 automatically
             self.set_current_channel(8)
-        self.client = self.get_window_from_ign(ign)
+
+        if not self.client:
+
+            self.client = self.get_window_from_ign(ign)
+            self.hwnd = self.client._hWnd
+
         self.reposition_client(eval(self.config.get(section='Clients Positioning', option='position_dict'))[self.ign])
-        self.hwnd = self.client._hWnd
         self.dimensions = {
             'width': self.client.width,
             'height': self.client.height - self.titlebar_pixels,
@@ -48,7 +50,12 @@ class ClientManager():
             os.system(eval(self.config.get(section='Client Path', option='path'))[self.config.get(section='RESOLUTIONS', option=char_type)])
         else:
             os.startfile(eval(self.config.get(section='Client Path', option='path'))[self.config.get(section='RESOLUTIONS', option=char_type)])
+
+        # DO NOT change focus after the client has been opened, otherwise the wrong handles will be retrieved.
         time.sleep(10)
+        self.hwnd = win32gui.GetForegroundWindow()
+        self.client = pyautogui.getActiveWindow()
+
 
     def login(self, username, pw, pic):
         # Note: For now, login automatically defaults into channel 8

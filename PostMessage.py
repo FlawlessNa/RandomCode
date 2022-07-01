@@ -2,6 +2,8 @@ import win32api
 import win32con
 import time
 
+# http://www.kbdedit.com/manual/low_level_vk_list.html
+# https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
 def construct_lparams(repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
 

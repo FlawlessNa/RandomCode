@@ -7,9 +7,6 @@ import win32con
 from PostMessage import pyPostMessage
 
 
-# https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-# http://www.kbdedit.com/manual/low_level_vk_list.html
-
 class LooterManager(ClientManager):
 
     def __init__(self, config, ign):
