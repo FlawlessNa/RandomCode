@@ -1,4 +1,4 @@
-from ClientManager import ClientManager
+from ComplexClient import ComplexClient
 import pydirectinput
 import pyautogui
 import win32con
@@ -6,7 +6,8 @@ import win32api
 import time
 from PostMessage import pyPostMessage
 
-class MageManager(ClientManager):
+
+class MageManager(ComplexClient):
     def __init__(self, config, ign):
         super().__init__(config, ign)
 

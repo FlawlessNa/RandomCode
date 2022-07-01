@@ -1,4 +1,4 @@
-from ClientManager import ClientManager
+from BasicCommands import ClientManager
 import cv2
 import numpy as np
 import pyautogui

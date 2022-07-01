@@ -1,4 +1,4 @@
-from ClientManager import ClientManager
+from ComplexClient import ComplexClient
 import pyautogui
 import pydirectinput
 import time
@@ -7,7 +7,7 @@ import win32con
 from PostMessage import pyPostMessage
 
 
-class LooterManager(ClientManager):
+class LooterManager(ComplexClient):
 
     def __init__(self, config, ign):
         super().__init__(config, ign)
