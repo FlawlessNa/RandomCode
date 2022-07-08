@@ -14,14 +14,14 @@ class BaseClient:
     def __init__(self, config, ign):
         self.config = config
         self.ign = ign
-        if eval(self.config.get(section='Startup Config', option='open_clients')):
+        if self.get_window_from_ign(ign) is None:
             username, password, pic = eval(self.config.get(section='Login Credentials', option='credentials'))[self.ign]
             self.open(char_type=self.get_char_type())
             self.login(username, password, pic)
             # When login through python, default channel will be 8 automatically
             self.set_current_channel(8)
 
-        if not self.client:
+        else:
             self.client = self.get_window_from_ign(ign)
             self.hwnd = self.client._hWnd
 
@@ -117,6 +117,9 @@ class BaseClient:
 
             if max_val >= 0.98:
                 return client
+
+        # if client isn't found
+        return None
 
     def take_screenshot(self):
         return take_screenshot(self.client, dim=self.dimensions)

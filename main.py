@@ -19,7 +19,7 @@ else:
 config.read(config.get(section='Login Credentials', option='path'))
 
 
-Guarding = LooterManager(config=config, ign='Guarding')
+Guarding = LooterManager(config=config, ign='Goldmine1')
 # Goldmine1 = MageManager(config=config, ign='Goldmine1')
 # Goldmine2 = MageManager(config=config, ign='Goldmine2')
 # Goldmine3 = MageManager(config=config, ign='Goldmine3')
