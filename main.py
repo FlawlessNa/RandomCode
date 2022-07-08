@@ -15,7 +15,7 @@ config.read('common_config.ini')
 if user == 'Nass':
     config.read('config_nass.ini')
 else:
-    config.read('config_lec.ini') # TODO
+    config.read('config_lec.ini')  # TODO
 config.read(config.get(section='Login Credentials', option='path'))
 
 
