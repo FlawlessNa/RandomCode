@@ -94,11 +94,6 @@ class ComplexClient(BasicCommands):
 
         pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-    def find_image(self, image):
-        if pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8) is not None:
-            return pyautogui.locateCenterOnScreen(image=image, region=self.client.box, confidence=0.8)
-        else:
-            return None
 
     def move_to_target(self, target, acceptable_dist_range):
 

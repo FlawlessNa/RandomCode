@@ -5,6 +5,8 @@ import time
 import win32api
 import win32con
 from PostMessage import pyPostMessage
+import cv2
+from ImageDetection import find_image
 
 
 class LooterManager(ComplexClient):
@@ -46,7 +48,7 @@ class LooterManager(ComplexClient):
 
     def find_self(self):
         image = self.config.get(section='Character Images', option='looter_guildlogo')
-        return self.find_image(image)
+        return find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
 
 
     def move_to_and_enter_door(self):
