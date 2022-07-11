@@ -7,6 +7,8 @@ import multiprocessing
 import psutil
 import time
 import cv2
+import random
+
 
 user = 'Nass'
 config = ConfigParser()
@@ -15,59 +17,82 @@ config.read('common_config.ini')
 if user == 'Nass':
     config.read('config_nass.ini')
 else:
-    config.read('config_lec.ini') # TODO
+    config.read('config_lec.ini')  # TODO
 config.read(config.get(section='Login Credentials', option='path'))
 
 
-Guarding = LooterManager(config=config, ign='Guarding')
-# Goldmine1 = MageManager(config=config, ign='Goldmine1')
+# Guarding = LooterManager(config=config, ign='Guarding')
+Goldmine1 = MageManager(config=config, ign='Goldmine1')
 # Goldmine2 = MageManager(config=config, ign='Goldmine2')
 # Goldmine3 = MageManager(config=config, ign='Goldmine3')
-# LegalizeIt = MageManager(config=config, ign='LegalizeIt')
+LegalizeIt = MageManager(config=config, ign='LegalizeIt')
 
 # Goldmine1 = MageManager(config=config)
 
-def loot():
-    Guarding.use_stance()
-    Guarding.ensure_mount_is_used()
-    Guarding.map_sequence_1()
-    Guarding.map_sequence_2()
-    Guarding.map_sequence_3()
-    Guarding.map_sequence_4()
 
-def farm1():
-    LegalizeIt.farm_mode()
+def bot_farmer():
 
-def farm2():
-    Goldmine1.farm_mode()
+    LegalizeIt.cast_mg()
+    mg_time = time.time()
+    next_mg = random.randint(450, 550)
+    time.sleep(1.5)
 
-# Press the green button in the gutter to run the script.
+    LegalizeIt.cast_infinity()
+    inf_time = time.time()
+    next_inf = random.randint(605, 650)
+    time.sleep(0.5)
+
+    while True:
+        val = LegalizeIt.farm_mode('bot')
+        if val:
+            time.sleep(2.8)
+            if time.time() > mg_time + next_mg:
+                LegalizeIt.cast_mg()
+                mg_time = time.time()
+                time.sleep(1.5)
+
+            elif time.time() > inf_time + next_inf:
+                LegalizeIt.cast_infinity()
+                inf_time = time.time()
+                time.sleep(0.5)
+
+
+def top_farmer():
+
+    Goldmine1.cast_mg()
+    mg_time = time.time()
+    next_mg = random.randint(450, 550)
+    time.sleep(1.5)
+
+    Goldmine1.cast_infinity()
+    inf_time = time.time()
+    next_inf = random.randint(605, 650)
+    time.sleep(0.5)
+
+    while True:
+        val = Goldmine1.farm_mode('top')
+        if val:
+            time.sleep(2.8)
+            if time.time() > mg_time + next_mg:
+                Goldmine1.cast_mg()
+                mg_time = time.time()
+                time.sleep(1.5)
+
+            elif time.time() > inf_time + next_inf:
+                Goldmine1.cast_infinity()
+                inf_time = time.time()
+                time.sleep(0.5)
+
 if __name__ == '__main__':
 
-    window_rect = win32gui.GetWindowRect(Guarding.hwnd)
     loop_time = time.time()
-    images = []
-    for item in config.items(section='MOB Images'):
-        imgs = eval(item[1])
-        images.extend(imgs)
-    needles = [cv2.imread(image, cv2.IMREAD_COLOR) for image in images]
+    proc1 = multiprocessing.Process(target=top_farmer)
+    proc2 = multiprocessing.Process(target=bot_farmer)
+    proc1.start()
+    proc2.start()
 
-    while(True):
-
-        haystack = Guarding.take_screenshot()
-        for needle in needles:
-            haystack = find_image(haystack, needle, threshold=0.8, method=cv2.TM_CCOEFF_NORMED)
-
-        cv2.imshow('Screenshots', haystack)
-
-        print('FPS {}'.format(1 / (time.time() - loop_time)))
-        loop_time = time.time()
-
-        if cv2.waitKey(1) == ord('q'):
-            cv2.destroyAllWindows()
-            break
-
-    # result = cv2.matchTemplate()
+    proc1.join()
+    proc2.join()
 
     # Guarding.move_right_and_up_by(200)
     # Guarding.setup_hp_threshold()

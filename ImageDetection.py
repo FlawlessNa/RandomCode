@@ -39,7 +39,8 @@ def take_screenshot(client, dim=None):
 
     return img
 
-def find_image(haystack, needle, method, threshold):
+
+def find_image(haystack, needle, method=cv2.TM_CCOEFF_NORMED, threshold=0.7):
 
     result = cv2.matchTemplate(haystack, needle, method)
     locations = np.where(result >= threshold)
@@ -59,10 +60,4 @@ def find_image(haystack, needle, method, threshold):
 
     rectangles, weights = cv2.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
 
-    if len(rectangles):
-        for (x, y, w, h) in rectangles:
-            top_left = (x, y)
-            bottom_right = (x + w, y + h)
-            cv2.rectangle(haystack, top_left, bottom_right, color=(0, 255, 0), lineType=cv2.LINE_4)
-
-    return haystack
+    return rectangles

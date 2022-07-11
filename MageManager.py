@@ -1,12 +1,15 @@
-from ClientManager import ClientManager
+from ComplexClient import ComplexClient
 import pydirectinput
 import pyautogui
 import win32con
 import win32api
 import time
+import cv2
 from PostMessage import pyPostMessage
+from ImageDetection import take_screenshot, find_image
 
-class MageManager(ClientManager):
+
+class MageManager(ComplexClient):
     def __init__(self, config, ign):
         super().__init__(config, ign)
 
@@ -14,7 +17,8 @@ class MageManager(ClientManager):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='ultkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(2.8)
+        time.sleep(0.1)
+        pyPostMessage('press', key_config, self.hwnd)
 
     def teleport_left(self):
 
@@ -33,35 +37,39 @@ class MageManager(ClientManager):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='mgkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.5)
+        time.sleep(0.1)
+        pyPostMessage('press', key_config, self.hwnd)
 
     def cast_infinity(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='infinitykey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.5)
+        time.sleep(0.1)
+        pyPostMessage('press', key_config, self.hwnd)
 
     def cast_door(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='doorkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.5)
+        time.sleep(0.1)
+        pyPostMessage('press', key_config, self.hwnd)
 
     def reposition(self):
-        char_pos = self.find_image(image=self.config.get(section='Character Images', option='mage_medal'))
-        too_far_left = self.find_image(image=self.config.get(section='Map Images', option='target_sequence_2'))
-        too_far_right = self.find_image(image=self.config.get(section='Map Images', option='left_ladder'))
-        if char_pos is None:
-            return None
-        else:
-            if too_far_left is not None:
-                distance = char_pos.x - too_far_left.x
-                desired_distance = 650
-                self.move_right_by(distance=desired_distance - distance)
-            elif too_far_right is not None:
-                distance = too_far_right.x - char_pos.x
-                desired_distance = 1000
-                self.move_left_by(distance=desired_distance - distance)
+        char_pos = self.find_self()
+        if len(char_pos):
+            needle_left = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
+            needle_right = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+            haystack = self.take_screenshot()
+            rects_left = find_image(haystack, needle_left)
+            rects_right = find_image(haystack, needle_right)
+
+            if len(rects_left):
+                print('{} distance with left target: {}'.format(self.ign, char_pos[0][0] - rects_left[0][0]))
+                self.move_right_by(550 - (char_pos[0][0] - rects_left[0][0]))
+
+            elif len(rects_right):
+                print('{} distance with right target: {}'.format(self.ign, char_pos[0][0] - rects_right[0][0]))
+                self.move_left_by(900 - abs(char_pos[0][0] - rects_right[0][0]))
 
     def move_to_car(self):
         loop = True
@@ -77,26 +85,33 @@ class MageManager(ClientManager):
                 self.jump()
             loop = False
 
-    def detect_mobs(self, mob_image):
-        return len(list(pyautogui.locateAllOnScreen(image=mob_image, region=self.client.box, confidence=0.9)))
+    def detect_mobs(self, haystack, mob_image):
+        return len(find_image(haystack, cv2.imread(mob_image, cv2.IMREAD_COLOR)))
 
-    def detect_mobs_multi_image(self, mob_images):
+    def detect_mobs_multi_image(self, haystack, mob_images):
         nbr_mobs = 0
         for image in mob_images:
-            nbr_mobs += self.detect_mobs(image)
+            nbr_mobs += self.detect_mobs(haystack, image)
         return nbr_mobs
 
     def find_self(self):
         image = self.config.get(section='Character Images', option='mage_medal')
-        return self.find_image(image)
+        return find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
 
-    def farm_mode(self):
-        while True:
-            nbr_mobs = len(list(pyautogui.locateAllOnScreen(image='KeyImages/Veetron_left.png', region=self.client.box, confidence=0.9))) + \
-                       len(list(pyautogui.locateAllOnScreen(image='KeyImages/Veetron_right.png', region=self.client.box, confidence=0.9))) + \
-                       len(list(pyautogui.locateAllOnScreen(image='KeyImages/Berserkie_left.png', region=self.client.box, confidence=0.9))) + \
-                       len(list(pyautogui.locateAllOnScreen(image='KeyImages/Berserkie_right.png', region=self.client.box, confidence=0.9)))
-            if nbr_mobs >= 5:
-                self.cast_ult()
-                time.sleep(2)
-                self.reposition()
+    def move_to_top(self):
+        pass
+
+    def farm_mode(self, pos):
+
+        if pos == 'top':
+            self.reposition()
+
+        haystack = self.take_screenshot()
+        images = []
+        for item in self.config.items(section='MOB Images'):
+            imgs = eval(item[1])
+            images.extend(imgs)
+        if self.detect_mobs_multi_image(haystack, images) >= 4:
+            self.cast_ult()
+            return True
+
