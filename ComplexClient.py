@@ -2,7 +2,8 @@ import win32con
 import pyautogui
 from BasicCommands import BasicCommands
 from PostMessage import pyPostMessage
-
+from ImageDetection import find_image
+import cv2
 
 class ComplexClient(BasicCommands):
 
@@ -13,18 +14,24 @@ class ComplexClient(BasicCommands):
 
         nbr_keys = self.get_current_channel() - destination
 
-        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
-        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+        while True:
+            pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
+            pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-        if nbr_keys < 0:
-            for i in range(abs(nbr_keys)):
-                pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
+            if nbr_keys < 0:
+                for i in range(abs(nbr_keys)):
+                    pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
 
-        elif nbr_keys > 0:
-            for i in range(nbr_keys):
-                pyPostMessage('press', [win32con.VK_LEFT, 1], self.hwnd)
+            elif nbr_keys > 0:
+                for i in range(nbr_keys):
+                    pyPostMessage('press', [win32con.VK_LEFT, 1], self.hwnd)
 
-        pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+            pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+
+            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='change_channel_check'), cv2.IMREAD_COLOR))):
+                pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+            else:
+                break
 
         self.set_current_channel(destination)
 
@@ -120,3 +127,15 @@ class ComplexClient(BasicCommands):
                 else:
                     self.move_left_by(abs(distance / increment))
                     increment += 0.75
+
+    def detect_mobs(self, haystack, mob_image):
+        return len(find_image(haystack, cv2.imread(mob_image, cv2.IMREAD_COLOR)))
+
+    def detect_mobs_multi_image(self, haystack, mob_images):
+        nbr_mobs = 0
+        for image in mob_images:
+            nbr_mobs += self.detect_mobs(haystack, image)
+        return nbr_mobs
+
+    def farm_setup(self):
+        self.ensure_pet_is_on()

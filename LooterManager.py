@@ -133,37 +133,37 @@ class LooterManager(ComplexClient):
 
     def map_sequence_1(self):
 
-        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
+        # cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
         self.jump_right_for(4)
-        self.move_right_and_down_until(expression=cond1)
+        self.move_right_until(expression=cond)
 
         pydirectinput.keyDown('up')
         time.sleep(0.5)
         pydirectinput.keyUp('up')
-        # self.move_up_until(expression=cond2)
 
     def map_sequence_2(self):
 
-        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Map Images', option='target_sequence_2'), region=self.client.box, confidence=0.9) != None"""
-        self.jump_left_until(expression=cond1)
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)))"""
+        self.jump_left_for(2)
+        self.move_left_until(expression=cond)
         time.sleep(0.2)
         self.jump()
         time.sleep(1.5)
 
     def map_sequence_3(self):
-
-        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
-        self.jump_right_for(4)
-        self.move_right_and_down_until(expression=cond1)
-        self.move_down_for(0.4)
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR)))"""
+        self.move_right_and_down_until(expression=cond)
+        self.move_down_for(1)
         self.jump_left()
         time.sleep(1)
 
     def map_sequence_4(self):
 
-        cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Map Images', option='target_sequence_4'), region=self.client.box, confidence=0.9) != None"""
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR)))"""
         self.jump_down()
         time.sleep(0.6)
         self.jump_down()
         time.sleep(1)
-        self.move_left_until(expression=cond1)
+        self.move_left_until(expression=cond)
+

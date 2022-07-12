@@ -20,6 +20,13 @@ class MageManager(ComplexClient):
         time.sleep(0.1)
         pyPostMessage('press', key_config, self.hwnd)
 
+    def cast_hs(self):
+
+        key_config = eval(self.config.get(section='KEYBINDS - Mage', option='hskey'))
+        pyPostMessage('press', key_config, self.hwnd)
+        time.sleep(0.1)
+        pyPostMessage('press', key_config, self.hwnd)
+
     def teleport_left(self):
 
         self.client.activate()
@@ -54,6 +61,16 @@ class MageManager(ComplexClient):
         time.sleep(0.1)
         pyPostMessage('press', key_config, self.hwnd)
 
+    def reposition_needed(self):
+        needle_left = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
+        needle_right = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+        haystack = self.take_screenshot()
+        rects_left = find_image(haystack, needle_left)
+        rects_right = find_image(haystack, needle_right)
+
+        if len(rects_left) or len(rects_right):
+            return True
+
     def reposition(self):
         char_pos = self.find_self()
         if len(char_pos):
@@ -69,7 +86,9 @@ class MageManager(ComplexClient):
 
             elif len(rects_right):
                 print('{} distance with right target: {}'.format(self.ign, char_pos[0][0] - rects_right[0][0]))
-                self.move_left_by(900 - abs(char_pos[0][0] - rects_right[0][0]))
+                self.teleport_left()  # This is a safeguard in cases where mage falls all the way down to the right.
+                self.move_left_by(max(900 - (abs(char_pos[0][0] - rects_right[0][0]) - 250), 0))
+
 
     def move_to_car(self):
         loop = True
@@ -85,15 +104,6 @@ class MageManager(ComplexClient):
                 self.jump()
             loop = False
 
-    def detect_mobs(self, haystack, mob_image):
-        return len(find_image(haystack, cv2.imread(mob_image, cv2.IMREAD_COLOR)))
-
-    def detect_mobs_multi_image(self, haystack, mob_images):
-        nbr_mobs = 0
-        for image in mob_images:
-            nbr_mobs += self.detect_mobs(haystack, image)
-        return nbr_mobs
-
     def find_self(self):
         image = self.config.get(section='Character Images', option='mage_medal')
         return find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
@@ -101,10 +111,7 @@ class MageManager(ComplexClient):
     def move_to_top(self):
         pass
 
-    def farm_mode(self, pos):
-
-        if pos == 'top':
-            self.reposition()
+    def farm(self):
 
         haystack = self.take_screenshot()
         images = []
@@ -113,5 +120,3 @@ class MageManager(ComplexClient):
             images.extend(imgs)
         if self.detect_mobs_multi_image(haystack, images) >= 4:
             self.cast_ult()
-            return True
-

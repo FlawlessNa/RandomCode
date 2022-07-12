@@ -2,6 +2,7 @@ import win32gui
 from configparser import ConfigParser
 from LooterManager import LooterManager
 from ImageDetection import find_image
+from TaskManager import MultiClients
 from MageManager import MageManager
 import multiprocessing
 import psutil
@@ -21,78 +22,148 @@ else:
 config.read(config.get(section='Login Credentials', option='path'))
 
 
-# Guarding = LooterManager(config=config, ign='Guarding')
-Goldmine1 = MageManager(config=config, ign='Goldmine1')
-# Goldmine2 = MageManager(config=config, ign='Goldmine2')
-# Goldmine3 = MageManager(config=config, ign='Goldmine3')
-LegalizeIt = MageManager(config=config, ign='LegalizeIt')
+def bot_farmer(ign, q):
 
-# Goldmine1 = MageManager(config=config)
+    bot_mage_client = MageManager(config, ign)
 
-
-def bot_farmer():
-
-    LegalizeIt.cast_mg()
+    bot_mage_client.cast_mg()
     mg_time = time.time()
     next_mg = random.randint(450, 550)
     time.sleep(1.5)
 
-    LegalizeIt.cast_infinity()
+    bot_mage_client.cast_infinity()
     inf_time = time.time()
     next_inf = random.randint(605, 650)
     time.sleep(0.5)
 
     while True:
-        val = LegalizeIt.farm_mode('bot')
+        val = bot_mage_client.farm()
         if val:
             time.sleep(2.8)
             if time.time() > mg_time + next_mg:
-                LegalizeIt.cast_mg()
+                bot_mage_client.cast_mg()
                 mg_time = time.time()
                 time.sleep(1.5)
 
             elif time.time() > inf_time + next_inf:
-                LegalizeIt.cast_infinity()
+                bot_mage_client.cast_infinity()
                 inf_time = time.time()
                 time.sleep(0.5)
 
 
-def top_farmer():
+def top_farmer(ign, q):
 
-    Goldmine1.cast_mg()
+    top_mage_client = MageManager(config, ign=ign)
+
+    top_mage_client.cast_mg()
     mg_time = time.time()
     next_mg = random.randint(450, 550)
     time.sleep(1.5)
 
-    Goldmine1.cast_infinity()
+    top_mage_client.cast_infinity()
     inf_time = time.time()
     next_inf = random.randint(605, 650)
     time.sleep(0.5)
 
     while True:
-        val = Goldmine1.farm_mode('top')
+        if top_mage_client.reposition_needed():
+            if 'ign' == 'Goldmine2':
+                q.put(6)
+            elif 'ign' == 'Goldmine3':
+                q.put(7)
+        val = top_mage_client.farm()
         if val:
             time.sleep(2.8)
             if time.time() > mg_time + next_mg:
-                Goldmine1.cast_mg()
+                top_mage_client.cast_mg()
                 mg_time = time.time()
                 time.sleep(1.5)
 
             elif time.time() > inf_time + next_inf:
-                Goldmine1.cast_infinity()
+                top_mage_client.cast_infinity()
                 inf_time = time.time()
                 time.sleep(0.5)
+
+
+def queue_reader(looter, top1, top2, bot1, bot2, q):
+
+    looter_client = LooterManager(config, looter)
+    looter_client.set_current_channel(11)
+
+    top_mage_client1 = MageManager(config, top1)
+    top_mage_client2 = MageManager(config, top2)
+
+    bot_mage_client1 = MageManager(config, bot1)
+    bot_mage_client1.set_current_channel(10)
+
+    bot_mage_client2 = MageManager(config, bot2)
+    channel_list = [10, 11]
+
+    q.put(1)
+    while True:
+        i = q.get()
+        if i == 1:
+            looter_client.map_sequence_1()
+            q.put(2)
+        elif i == 2:
+            looter_client.map_sequence_2()
+            q.put(3)
+        elif i == 3:
+            looter_client.map_sequence_3()
+            q.put(4)
+        elif i == 4:
+            looter_client.map_sequence_4()
+            q.put(5)
+        elif i == 5:
+            looter_client.change_channel(channel_list[~channel_list.index(looter_client.get_current_channel())])
+            if looter_client.get_current_channel() == bot_mage_client1.get_current_channel():
+                q.put(8)
+            q.put(1)
+        elif i == 6:
+            top_mage_client1.reposition()
+        elif i == 7:
+            top_mage_client2.reposition()
+        elif i == 8:
+            bot_mage_client1.cast_hs()
+        if i == 'DONE':
+            break
+
 
 if __name__ == '__main__':
+    list_clients = MultiClients(config)
+    list_clients.farm_setup()
 
-    loop_time = time.time()
-    proc1 = multiprocessing.Process(target=top_farmer)
-    proc2 = multiprocessing.Process(target=bot_farmer)
-    proc1.start()
-    proc2.start()
+    # queue = multiprocessing.Queue()
+    # proc1 = multiprocessing.Process(target=queue_reader, args=('Guarding', 'Goldmine2', 'Goldmine3', 'LegalizeIt', 'Goldmine1', queue,))
+    # proc2 = multiprocessing.Process(target=bot_farmer, args=('Goldmine1', queue, ))
+    # proc3 = multiprocessing.Process(target=top_farmer, args=('Goldmine2', queue, ))
+    # proc4 = multiprocessing.Process(target=bot_farmer, args=('LegalizeIt', queue, ))
+    # proc5 = multiprocessing.Process(target=top_farmer, args=('Goldmine3', queue, ))
+    #
+    # proc1.start()
+    # proc2.start()
+    # proc3.start()
+    # proc4.start()
+    # proc5.start()
+    #
+    # proc1.join()
+    # proc2.join()
+    # proc3.join()
+    # proc4.join()
+    # proc5.join()
 
-    proc1.join()
-    proc2.join()
+    #
+    # loop_time = time.time()
+    # proc1 = multiprocessing.Process(target=top_farmer, args=(queue, ))
+    # proc2 = multiprocessing.Process(target=bot_farmer, args=(queue, ))
+    # proc3 = multiprocessing.Process(target=looter, args=(queue, ))
+    # proc1.start()
+    # proc2.start()
+    # proc3.start()
+    #
+    # proc1.join()
+    # proc2.join()
+    # proc3.join()
 
     # Guarding.move_right_and_up_by(200)
     # Guarding.setup_hp_threshold()

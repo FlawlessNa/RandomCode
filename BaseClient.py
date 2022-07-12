@@ -1,9 +1,11 @@
 import os
 import time
 import win32gui
+import win32con
 import pyautogui
 import random
-from ImageDetection import take_screenshot
+from PostMessage import pyPostMessage
+from ImageDetection import take_screenshot, find_image
 import cv2
 
 
@@ -18,20 +20,27 @@ class BaseClient:
             username, password, pic = eval(self.config.get(section='Login Credentials', option='credentials'))[self.ign]
             self.open(char_type=self.get_char_type())
             self.login(username, password, pic)
+            self.dimensions = {
+                'width': self.client.width,
+                'height': self.client.height - self.titlebar_pixels,
+                'crop_x': 0,
+                'crop_y': self.titlebar_pixels
+            }
             # When login through python, default channel will be 8 automatically
             self.set_current_channel(8)
 
         else:
             self.client = self.get_window_from_ign(ign)
             self.hwnd = self.client._hWnd
+            self.dimensions = {
+                'width': self.client.width,
+                'height': self.client.height - self.titlebar_pixels,
+                'crop_x': 0,
+                'crop_y': self.titlebar_pixels
+            }
+            self.set_current_channel()
 
         self.reposition_client(eval(self.config.get(section='Clients Positioning', option='position_dict'))[self.ign])
-        self.dimensions = {
-            'width': self.client.width,
-            'height': self.client.height - self.titlebar_pixels,
-            'crop_x': 0,
-            'crop_y': self.titlebar_pixels
-        }
 
     def open(self, char_type):
         # Apparently, opening the 800x600 doesnt work, but we can instead open the shortcut on the Desktop and it works..
@@ -115,7 +124,7 @@ class BaseClient:
             result = cv2.matchTemplate(haystack, needle, cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
-            if max_val >= 0.98:
+            if max_val >= 0.99:
                 return client
 
         # if client isn't found
@@ -131,5 +140,17 @@ class BaseClient:
         else:
             return self.current_channel
 
-    def set_current_channel(self, channel):
-        self.current_channel = channel
+    def set_current_channel(self, channel=None):
+
+        if channel is None:
+            pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
+            pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+
+            nbr_changes = 0
+            while len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Login Images', option='channel_1'), cv2.IMREAD_COLOR), threshold=0.995)) == 0:
+                nbr_changes += 1
+                pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
+            pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
+            self.current_channel = 1 if nbr_changes == 0 else 1 - nbr_changes + 20
+        else:
+            self.current_channel = channel

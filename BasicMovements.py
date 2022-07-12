@@ -3,6 +3,8 @@ import win32con
 import time
 from PostMessage import pyPostMessage
 from BaseClient import BaseClient
+from ImageDetection import find_image
+import cv2
 
 
 class BasicMovements(BaseClient):
