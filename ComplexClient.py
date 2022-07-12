@@ -137,5 +137,22 @@ class ComplexClient(BasicCommands):
             nbr_mobs += self.detect_mobs(haystack, image)
         return nbr_mobs
 
-    def farm_setup(self):
+    def potion_setup(self):
+        hp_pots_to_use = eval(self.config.get(section='HP Potions', option='potion_dict'))[self.ign]
+        mp_pots_to_use = eval(self.config.get(section='MP Potions', option='potion_dict'))[self.ign]
+        hp_needle = cv2.imread(eval(self.config.get(section='Inventory Images', option='potions'))[hp_pots_to_use], cv2.IMREAD_COLOR)
+        mp_needle = cv2.imread(eval(self.config.get(section='Inventory Images', option='potions'))[mp_pots_to_use], cv2.IMREAD_COLOR)
+
         self.ensure_pet_is_on()
+        self.ensure_equip_window_is_open()
+        if not len(find_image(self.take_screenshot(), hp_needle, threshold=0.9)):
+            self.setup_hp_pots(hp_needle)
+        if not len(find_image(self.take_screenshot(), mp_needle, threshold=0.9)):
+            self.setup_mp_pots(mp_needle)
+        self.toggle_equip_window()
+
+
+    def farm_setup(self):
+        self.potion_setup()
+        # self.feed_multiple_pets(len(eval(self.config.get(section='Pet Images', option='pets'))[self.ign]) * 3)
+

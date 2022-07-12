@@ -5,6 +5,16 @@ import time
 # http://www.kbdedit.com/manual/low_level_vk_list.html
 # https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
+# # To retrieve the thread:
+# thread = win32process.GetWindowThreadProcessId(hwnd)  # Returns both the Thread and the Process Id's, the thread is the first in the list
+#
+# # To retrieve other windows associated with Thread
+# lst = []
+# def callback_func(hwnd, param):
+#     lst.append(hwnd)
+#
+# win32gui.EnumThreadWindows(thread, callback_func, lst)
+
 def construct_lparams(repeat_count, key, wm_command, extended_key, previous_key_state=1, scan_code=None):
 
     assert repeat_count < 2 ** 16
@@ -59,7 +69,7 @@ def pyPostMessage(action, key_config=None, hwnd=None, repeat_count=1, previous_k
 
     elif action == 'mousemove':  # TODO: figure out the problem here
         x, y = coordinates
-        lparam = (x << 16) + y  # shifts the x-coordinate by 16 bytes
+        lparam = (y << 16) + x  # shifts the x-coordinate by 16 bytes
         win32api.PostMessage(hwnd, win32con.WM_MOUSEMOVE, 0, lparam)
 
     elif action == 'hold':
@@ -83,10 +93,43 @@ def pyPostMessage(action, key_config=None, hwnd=None, repeat_count=1, previous_k
         lparam_char = construct_lparams(repeat_count=repeat_count, key=key, wm_command=win32con.WM_KEYDOWN, extended_key=extended_param, previous_key_state=0)
         win32api.PostMessage(hwnd, win32con.WM_CHAR, key, lparam_char)
 
-    elif action == 'click':  # TODO: figure out the problem here
+    elif action == 'click':  # TODO: figure out how to make this work
         x, y = coordinates
-        lparam = int((y << 16) + x, base=2)  # shifts the y-coordinate by 16 bytes
-        win32api.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, 0, lparam)
+        lparam = (y << 16) + x  # shifts the y-coordinate by 16 bytes
+
+        win32api.SendMessage(hwnd, win32con.WM_MOUSEACTIVATE, hwnd, (win32con.WM_LBUTTONDOWN << 16) + 1)
+
+        win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, hwnd, (win32con.WM_LBUTTONDOWN << 16) + 1)
+        time.sleep(0.05)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lparam)
+        time.sleep(0.05)
+        win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, hwnd, (win32con.WM_LBUTTONUP << 16) + 1)
+        time.sleep(0.05)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lparam)
+
+    elif action == 'doubleclick':  # TODO: figure out how to make this work
+        x, y = coordinates
+        lparam = (y << 16) + x  # shifts the y-coordinate by 16 bytes
+
+        win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, hwnd, (win32con.WM_LBUTTONDOWN << 16) + 1)
+        time.sleep(0.01)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lparam)
+        time.sleep(0.01)
+
+        win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, hwnd, (win32con.WM_LBUTTONUP << 16) + 1)
+        time.sleep(0.01)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lparam)
+        time.sleep(0.01)
+
+        win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, hwnd, (win32con.WM_LBUTTONDOWN << 16) + 1)
+        time.sleep(0.01)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONDBLCLK, win32con.MK_LBUTTON, lparam)
+        time.sleep(0.01)
+
+        win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, hwnd, (win32con.WM_LBUTTONUP << 16) + 1)
+        time.sleep(0.01)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lparam)
+        time.sleep(0.01)
 
     else:
         pass

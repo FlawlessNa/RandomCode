@@ -2,14 +2,14 @@ import win32gui
 from configparser import ConfigParser
 from LooterManager import LooterManager
 from ImageDetection import find_image
-from TaskManager import MultiClients
+from MultiClients import MultiClients
 from MageManager import MageManager
 import multiprocessing
 import psutil
 import time
 import cv2
 import random
-
+from PostMessage import pyPostMessage
 
 user = 'Nass'
 config = ConfigParser()
@@ -130,9 +130,10 @@ def queue_reader(looter, top1, top2, bot1, bot2, q):
 
 
 if __name__ == '__main__':
-    list_clients = MultiClients(config)
-    list_clients.farm_setup()
-
+    # test = LooterManager(config, 'Buccanoid')
+    # test.farm_setup()
+    test = MultiClients(config)
+    print(test.clients)
     # queue = multiprocessing.Queue()
     # proc1 = multiprocessing.Process(target=queue_reader, args=('Guarding', 'Goldmine2', 'Goldmine3', 'LegalizeIt', 'Goldmine1', queue,))
     # proc2 = multiprocessing.Process(target=bot_farmer, args=('Goldmine1', queue, ))

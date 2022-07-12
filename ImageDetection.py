@@ -1,5 +1,7 @@
 import cv2
-import win32gui, win32ui, win32con
+import win32gui
+import win32ui
+import win32con
 import numpy as np
 
 def take_screenshot(client, dim=None):
