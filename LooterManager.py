@@ -3,10 +3,12 @@ import pyautogui
 import pydirectinput
 import time
 import win32api
+import win32gui
 import win32con
 from PostMessage import pyPostMessage
 import cv2
 from ImageDetection import find_image
+import random
 
 
 class LooterManager(ComplexClient):
@@ -117,11 +119,39 @@ class LooterManager(ComplexClient):
         self.move_right_and_up_until(cond3)
 
     def click_fm_storage(self):
-        # Values are hard-coded since location is never-changing. Prevents issues using LocateOnScreen as there may be characters/animations hindering the npc
+        # Values are hard-coded since location is never-changing. Prevents issues as there may be characters/animations hindering the npc
         self.click_at(60, 600)
 
     def click_fm_seller(self):
         self.click_at(525, 325)
+
+    def order_items_to_keep_on_top(self):
+        pass
+
+    def sell_items(self):
+        self.click_fm_seller()
+        x, y = win32gui.ClientToScreen(self.hwnd, (int(100), int(100)))
+        self.move_cursor_to(x, y)
+        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.9)
+        x, y, w, h = list(*rect)
+        target_x = x + 30
+        target_y = y + h/2 + 75
+        self.click_at(target_x, target_y)
+
+        haystack = self.take_screenshot()
+        target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.9)
+        x, y, w, h = list(*target)
+        target_x, target_y = win32gui.ClientToScreen(self.hwnd, (int(x + w/2), int(y + h/2)))
+        item_sold = 0
+        while item_sold < 96:
+            self.click_at(target_x, target_y)
+            pyPostMessage('press', [0x59, 0], self.hwnd)
+            time.sleep(random.uniform(0.01, 0.1))
+            item_sold += 1
+
+
+
+
 
     def map_sequence_1(self):
 
