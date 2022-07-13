@@ -70,50 +70,62 @@ class LooterManager(ComplexClient):
 
     def move_to_and_enter_door(self):
 
-        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
-        # This method should only be used after changing channel!
-        while pyautogui.locateOnScreen(self.config.get(section='Map Images', option='ulu_minimap'), region=self.client.box) is None:
-            self.toggle_minimap()
-
-        loop = True
-        self.move_right_by(666 - 322)
-        while loop:
-            self.move_to_target(target=self.config.get(section='Map Images', option='door'), acceptable_dist_range=[13, 37])
+        target = self.config.get(section='Map Images', option='door')
+        self.ensure_mount_is_used()
+        self.toggle_mount()
+        while True:
+            self.move_to_target(target, [-30, 0])
             self.jump()
-            time.sleep(0.6)
+            time.sleep(0.75)
             self.move_up()
-            time.sleep(1)
-            loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_minimap'))
+            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR))):
+                break
+        self.toggle_mount()
+            # curr_pos = self.find_self()
+            # haystack = self.take_screenshot()
+            #
+            # target = find_image(haystack, needle)
+            # if len(curr_pos) and len(target):
+            #     x1, y1, w1, h1 = list(*curr_pos)
+            #     x2, y2, w2, h2 = list(*target)
+
+        # # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
+        # # This method should only be used after changing channel!
+        # while pyautogui.locateOnScreen(self.config.get(section='Map Images', option='ulu_minimap'), region=self.client.box) is None:
+        #     self.toggle_minimap()
+        #
+        # loop = True
+        # self.move_right_by(666 - 322)
+        # while loop:
+        #     self.move_to_target(target=self.config.get(section='Map Images', option='door'), acceptable_dist_range=[13, 37])
+        #     self.jump()
+        #     time.sleep(0.6)
+        #     self.move_up()
+        #     time.sleep(1)
+        #     loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_minimap'))
 
     def move_from_door_to_fm(self):
 
-        cond1 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_fm'), cv2.IMREAD_COLOR), threshold=0.9))"""
-        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.9))"""
-        self.move_left_for(1.5)
+        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        self.move_left_for(2)
         self.move_right_and_up_until(cond1)
+        time.sleep(1.5)
         self.move_right_and_up_until(cond2)
-        self.move_right_for(1)
+        self.move_right_for(0.5)
 
 
     def move_from_fm_to_door(self):
-        cond1 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.5))"""
-        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
-        cond3 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR), threshold=0.8))"""
+        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8))"""
+        cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.5))"""
+        cond3 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
 
         self.move_left_and_up_until(cond1)
         # Minimize chat to better detect the map anchor at this spot
         if self.chat_feed_is_displayed():
             self.toggle_chatfeed()
 
-        # Cannot use move_and_up_until because the condition will be detected too late due to screen changing its position. The character will keep walking and fall from building
-        while True:
-            self.move_to_target(self.config.get(section='Map Images', option='CBD_Portal2'), [-25, 5])
-            self.move_up()
-            time.sleep(2)
-            if eval(cond2):
-                break
-            self.move_right_for(1)
-
+        self.move_left_and_up_until(cond2)
         self.ensure_mount_is_used()
         self.jump_right()
         self.move_right_and_up_until(cond3)
@@ -148,10 +160,6 @@ class LooterManager(ComplexClient):
             pyPostMessage('press', [0x59, 0], self.hwnd)
             time.sleep(random.uniform(0.01, 0.1))
             item_sold += 1
-
-
-
-
 
     def map_sequence_1(self):
 

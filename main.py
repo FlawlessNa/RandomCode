@@ -131,7 +131,9 @@ def queue_reader(looter, top1, top2, bot1, bot2, q):
 
 if __name__ == '__main__':
     test = LooterManager(config, 'Guarding')
-    test.sell_items()
+    test.move_to_and_enter_door()
+    test.move_from_door_to_fm()
+    test.move_from_fm_to_door()
     # while True:
     #
     #     haystack = test.take_screenshot()
