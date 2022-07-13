@@ -104,6 +104,25 @@ class BasicCommands(BasicMovements):
         if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_title'), cv2.IMREAD_COLOR), threshold=0.99)):
             self.toggle_inventory()
 
+    def ensure_inventory_is_expanded(self):
+        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_collapsed'), cv2.IMREAD_COLOR), threshold=0.99)
+        if len(rect):
+            x, y, w, h = list(*rect)
+            x += w/2
+            y += h/2
+            target_x, target_y = win32gui.ClientToScreen(self.hwnd, (int(x), int(y)))
+            self.click_at(target_x, target_y)
+
+    def inventory_merge_and_sort(self):
+        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_merge'), cv2.IMREAD_COLOR), threshold=0.99)
+        if len(rect):
+            x, y, w, h = list(*rect)
+            x += w/2
+            y += h/2
+            target_x, target_y = win32gui.ClientToScreen(self.hwnd, (int(x), int(y)))
+            self.click_at(target_x, target_y)
+            self.click_at(target_x, target_y)
+
     def turn_pets_on(self):
 
         self.ensure_inventory_is_open()

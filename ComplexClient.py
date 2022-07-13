@@ -104,20 +104,18 @@ class ComplexClient(BasicCommands):
 
     def move_to_target(self, target, acceptable_dist_range):
 
-        # The target must be visible within the client
-        if pyautogui.locateOnScreen(image=target, region=self.client.box, confidence=0.9) is None:
-            return False
-
         min_dist, max_dist = acceptable_dist_range
         loop = True
         increment = 1
         while loop:
             current_pos = self.find_self()
-            target_pos = self.find_image(target)
-            if current_pos is None or target_pos is None:
+            target_pos = find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))
+            current_pos_x = current_pos[0][0]
+            target_pos_x = target_pos[0][0]
+            if not len(current_pos) or not len(target_pos):
                 continue  # This would happen if there are animations (such as an ult) blocking the target
             else:
-                distance = target_pos.x - current_pos.x
+                distance = target_pos_x - current_pos_x
                 print('Horizontal distance is {}'.format(distance))
                 if min_dist < distance < max_dist:
                     return True

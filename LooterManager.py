@@ -43,13 +43,28 @@ class LooterManager(ComplexClient):
 
         if pyautogui.locateOnScreen(image=self.config.get(section='Mount Image', option='mount_icon'), region=self.client.box, confidence=0.95) is None:
             self.toggle_mount()
-            return True
-        return False
 
     def find_self(self):
         image = self.config.get(section='Character Images', option='looter_guildlogo')
         return find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
 
+    def check_inventory_slots(self):
+        self.ensure_inventory_is_open()
+        self.ensure_inventory_is_expanded()
+
+        # Get to Equip Inventory
+        while True:
+            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_inventory'), cv2.IMREAD_COLOR), threshold=0.99)):
+                pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
+            else:
+                break
+        # sorting/merging just to minimize the number of cells that may be mis-read as not empty
+        self.inventory_merge_and_sort()
+
+        return len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='empty_inventory_cell'), cv2.IMREAD_COLOR), threshold=0.99))
+
+    def check_for_godlies(self):
+        pass
 
     def move_to_and_enter_door(self):
 
@@ -68,73 +83,49 @@ class LooterManager(ComplexClient):
             time.sleep(1)
             loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_minimap'))
 
-    def move_to_and_enter_portal1(self):
+    def move_from_door_to_fm(self):
 
-        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
-        # This method should only be used after entering door!
-        loop = True
-        while loop:
-            self.move_to_target(target=self.config.get(section='Map Images', option='CBD_portal1'), acceptable_dist_range=[18, 42])
-            self.move_up()
-            time.sleep(1)
-            loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_fm'))
+        cond1 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_fm'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        self.move_left_for(1.5)
+        self.move_right_and_up_until(cond1)
+        self.move_right_and_up_until(cond2)
+        self.move_right_for(1)
 
-    def move_to_and_enter_fm(self):
 
-        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
-        # This method should only be used after entering portal1
-        loop = True
-        while loop:
-            self.move_to_target(target=self.config.get(section='Map Images', option='CBD_fm'), acceptable_dist_range=[10, 36])
-            self.move_up()
-            time.sleep(1)
-            loop = self.check_portal_success(self.config.get(section='Map Images', option='FM_minimap'))
+    def move_from_fm_to_door(self):
+        cond1 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.5))"""
+        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
+        cond3 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR), threshold=0.8))"""
 
-    def move_to_and_enter_portal2(self):
+        self.move_left_and_up_until(cond1)
+        # Minimize chat to better detect the map anchor at this spot
+        if self.chat_feed_is_displayed():
+            self.toggle_chatfeed()
 
-        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
-        # This method should only be used after leaving fm
-        loop = True
-        while loop:
-            self.move_to_target(target=self.config.get(section='Map Images', option='CBD_portal2'), acceptable_dist_range=[16, 40])
+        # Cannot use move_and_up_until because the condition will be detected too late due to screen changing its position. The character will keep walking and fall from building
+        while True:
+            self.move_to_target(self.config.get(section='Map Images', option='CBD_Portal2'), [-25, 5])
             self.move_up()
             time.sleep(2)
-            if self.chat_feed_is_displayed():
-                self.toggle_chatfeed()
-            loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_portal1'))
+            if eval(cond2):
+                break
+            self.move_right_for(1)
 
-    def move_to_and_enter_door_from_town(self):
-
-        # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
-        if not self.ensure_mount_is_used():
-            self.toggle_mount()
+        self.ensure_mount_is_used()
         self.jump_right()
-
-        loop = True
-        while loop:
-            self.move_to_target(target=self.config.get(section='Map Images', option='door'), acceptable_dist_range=[13, 37])
-            self.move_up()
-            time.sleep(1)
-            loop = self.check_portal_success(self.config.get(section='Map Images', option='ulu_minimap'))
-        self.toggle_mount()
+        self.move_right_and_up_until(cond3)
 
     def click_fm_storage(self):
         # Values are hard-coded since location is never-changing. Prevents issues using LocateOnScreen as there may be characters/animations hindering the npc
         self.click_at(60, 600)
 
     def click_fm_seller(self):
-        self.click_at(575, 370)
-
-    def check_portal_success(self, image):
-        if pyautogui.locateOnScreen(image=image, region=self.client.box, confidence=0.9):
-            return False
-        else:
-            return True
+        self.click_at(525, 325)
 
     def map_sequence_1(self):
 
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
-        # cond1 = """pyautogui.locateOnScreen(image=self.config.get(section='Character Images', option='looter_backhead'), region=self.client.box, confidence=0.9) != None"""
         self.jump_right_for(4)
         self.move_right_until(expression=cond)
 

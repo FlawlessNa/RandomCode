@@ -130,10 +130,24 @@ def queue_reader(looter, top1, top2, bot1, bot2, q):
 
 
 if __name__ == '__main__':
-    # test = LooterManager(config, 'Buccanoid')
-    # test.farm_setup()
-    test = MultiClients(config)
-    print(test.clients)
+    test = LooterManager(config, 'Guarding')
+    test.move_from_fm_to_door()
+    # while True:
+    #
+    #     haystack = test.take_screenshot()
+    #     char = test.find_self()
+    #     portal = find_image(haystack, cv2.imread(test.config.get(section='Map Images', option='CBD_portal2'), cv2.IMREAD_COLOR), threshold=0.9)
+    #     x1, y1, w1, h1 = list(*char)
+    #     x2, y2, w2, h2 = list(*portal)
+    #
+    #     cv2.rectangle(haystack, (x1, y1), (x1 + w1, y1 + h1), (255, 0, 0))
+    #     cv2.rectangle(haystack, (x2, y2), (x2 + w2, y2 + h2), (255, 0, 0))
+    #     cv2.imshow('test', haystack)
+    #     cv2.waitKey(1)
+    #     print('Guarding mid-x point is at {}'.format(x1 + w1/2))
+    #     print('Target mid-x point is at {}'.format(x2 + w2/2))
+
+
     # queue = multiprocessing.Queue()
     # proc1 = multiprocessing.Process(target=queue_reader, args=('Guarding', 'Goldmine2', 'Goldmine3', 'LegalizeIt', 'Goldmine1', queue,))
     # proc2 = multiprocessing.Process(target=bot_farmer, args=('Goldmine1', queue, ))

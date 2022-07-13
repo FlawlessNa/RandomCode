@@ -146,7 +146,7 @@ class BaseClient:
 
             while not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Login Images', option='game_menu'), cv2.IMREAD_COLOR), threshold=0.99)):
                 pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
-                time.sleep(0.1)
+                time.sleep(0.2)
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
             nbr_changes = 0
