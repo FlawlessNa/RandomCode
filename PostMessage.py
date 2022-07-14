@@ -134,4 +134,4 @@ def pyPostMessage(action, key_config=None, hwnd=None, repeat_count=1, previous_k
     else:
         pass
 
-    time.sleep(0.05)
+    time.sleep(0.025)

@@ -2,6 +2,7 @@ import win32con
 import win32gui
 import cv2
 import pydirectinput
+import random
 import pyautogui
 from PostMessage import pyPostMessage
 from BasicMovements import BasicMovements
@@ -45,10 +46,12 @@ class BasicCommands(BasicMovements):
 
         key_config = eval(self.config.get(section='KEYBINDS - Common', option='petfoodkey'))
         pyPostMessage('press', key_config, self.hwnd)
+        return random.randint(450, 600)
 
     def feed_multiple_pets(self, nbr_press):
         for i in range(nbr_press):
-            self.feed_pet()
+            timer = self.feed_pet()
+        return timer
 
     def click_at(self, x, y):
         self.client.activate()

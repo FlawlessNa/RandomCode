@@ -110,21 +110,22 @@ class ComplexClient(BasicCommands):
         while loop:
             current_pos = self.find_self()
             target_pos = find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))
-            current_pos_x = current_pos[0][0]
-            target_pos_x = target_pos[0][0]
-            if not len(current_pos) or not len(target_pos):
-                continue  # This would happen if there are animations (such as an ult) blocking the target
+            if len(target_pos) and len(current_pos):
+                current_pos_x = current_pos[0][0]
+                target_pos_x = target_pos[0][0]
             else:
-                distance = target_pos_x - current_pos_x
-                print('Horizontal distance is {}'.format(distance))
-                if min_dist < distance < max_dist:
-                    return True
-                elif distance > 0:
-                    self.move_right_by(distance / increment)
-                    increment += 0.75
-                else:
-                    self.move_left_by(abs(distance / increment))
-                    increment += 0.75
+                continue  # This would happen if there are animations (such as an ult) blocking the target
+
+            distance = target_pos_x - current_pos_x
+            print('Horizontal distance is {}'.format(distance))
+            if min_dist < distance < max_dist:
+                return True
+            elif distance > 0:
+                self.move_right_by(distance / increment)
+                increment += 0.75
+            else:
+                self.move_left_by(abs(distance / increment))
+                increment += 0.75
 
     def detect_mobs(self, haystack, mob_image):
         return len(find_image(haystack, cv2.imread(mob_image, cv2.IMREAD_COLOR)))

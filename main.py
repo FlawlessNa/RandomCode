@@ -2,7 +2,7 @@ import win32gui
 from configparser import ConfigParser
 from LooterManager import LooterManager
 from ImageDetection import find_image
-from MultiClients import MultiClients
+from QueueManagement import QueueManager
 from MageManager import MageManager
 import multiprocessing
 import psutil
@@ -130,10 +130,27 @@ def queue_reader(looter, top1, top2, bot1, bot2, q):
 
 
 if __name__ == '__main__':
-    test = LooterManager(config, 'Guarding')
-    test.move_to_and_enter_door()
-    test.move_from_door_to_fm()
-    test.move_from_fm_to_door()
+
+    manager = QueueManager(config)
+
+    proc1 = multiprocessing.Process(target=manager.looter)
+    proc2 = multiprocessing.Process(target=manager.bishop)
+    proc3 = multiprocessing.Process(target=manager.bot_mage, args=('Goldmine1', ))
+    proc4 = multiprocessing.Process(target=manager.top_mage, args=('Goldmine2', 1, ))
+    proc5 = multiprocessing.Process(target=manager.top_mage, args=('Goldmine3', 2, ))
+
+    proc1.start()
+    proc2.start()
+    proc3.start()
+    proc4.start()
+    proc5.start()
+
+    proc1.join()
+    proc2.join()
+    proc3.join()
+    proc4.join()
+    proc5.join()
+
     # while True:
     #
     #     haystack = test.take_screenshot()

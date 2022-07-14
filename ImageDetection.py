@@ -63,3 +63,12 @@ def find_image(haystack, needle, method=cv2.TM_CCOEFF_NORMED, threshold=0.7):
     rectangles, weights = cv2.groupRectangles(rectangles, groupThreshold=1, eps=0.5)
 
     return rectangles
+
+
+def midpoint(handle, rectangle):
+    try:
+        x, y, w, h = list(*rectangle)
+    except TypeError:
+        x, y, w, h = rectangle
+
+    return win32gui.ClientToScreen(handle, (int(x + w/2), int(y + h/2)))

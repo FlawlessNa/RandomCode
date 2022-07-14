@@ -7,7 +7,7 @@ import win32gui
 import win32con
 from PostMessage import pyPostMessage
 import cv2
-from ImageDetection import find_image
+from ImageDetection import find_image, midpoint
 import random
 
 
@@ -34,6 +34,7 @@ class LooterManager(ComplexClient):
         self.ensure_mount_is_used()
 
         pyPostMessage('press', key_config, self.hwnd)
+        return random.randint(500, 650)
 
     def toggle_mount(self):
 
@@ -41,9 +42,14 @@ class LooterManager(ComplexClient):
         pyPostMessage('press', key_config, self.hwnd)
         time.sleep(0.3)
 
+    def check_is_mounted(self):
+        if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Mount Image', option='mount_icon'), cv2.IMREAD_COLOR))):
+            return True
+        return False
+
     def ensure_mount_is_used(self):
 
-        if pyautogui.locateOnScreen(image=self.config.get(section='Mount Image', option='mount_icon'), region=self.client.box, confidence=0.95) is None:
+        if not self.check_is_mounted():
             self.toggle_mount()
 
     def find_self(self):
@@ -56,14 +62,17 @@ class LooterManager(ComplexClient):
 
         # Get to Equip Inventory
         while True:
-            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_inventory'), cv2.IMREAD_COLOR), threshold=0.99)):
+            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_inventory'), cv2.IMREAD_COLOR), threshold=0.8)):
                 pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
             else:
                 break
         # sorting/merging just to minimize the number of cells that may be mis-read as not empty
         self.inventory_merge_and_sort()
 
-        return len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='empty_inventory_cell'), cv2.IMREAD_COLOR), threshold=0.99))
+        inv_slots = len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='empty_inventory_cell'), cv2.IMREAD_COLOR), threshold=0.9))
+        self.toggle_inventory()
+        print('nbr equip slots left: {}'.format(inv_slots))
+        return inv_slots
 
     def check_for_godlies(self):
         pass
@@ -81,28 +90,6 @@ class LooterManager(ComplexClient):
             if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR))):
                 break
         self.toggle_mount()
-            # curr_pos = self.find_self()
-            # haystack = self.take_screenshot()
-            #
-            # target = find_image(haystack, needle)
-            # if len(curr_pos) and len(target):
-            #     x1, y1, w1, h1 = list(*curr_pos)
-            #     x2, y2, w2, h2 = list(*target)
-
-        # # TODO: Try finishing the "move_left_and_up" and "move_right_and_up" methods within ClientManager and use these instead?
-        # # This method should only be used after changing channel!
-        # while pyautogui.locateOnScreen(self.config.get(section='Map Images', option='ulu_minimap'), region=self.client.box) is None:
-        #     self.toggle_minimap()
-        #
-        # loop = True
-        # self.move_right_by(666 - 322)
-        # while loop:
-        #     self.move_to_target(target=self.config.get(section='Map Images', option='door'), acceptable_dist_range=[13, 37])
-        #     self.jump()
-        #     time.sleep(0.6)
-        #     self.move_up()
-        #     time.sleep(1)
-        #     loop = self.check_portal_success(self.config.get(section='Map Images', option='CBD_minimap'))
 
     def move_from_door_to_fm(self):
 
@@ -114,10 +101,9 @@ class LooterManager(ComplexClient):
         self.move_right_and_up_until(cond2)
         self.move_right_for(0.5)
 
-
     def move_from_fm_to_door(self):
         cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8))"""
-        cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.5))"""
+        cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.8))"""
         cond3 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
 
         self.move_left_and_up_until(cond1)
@@ -127,72 +113,134 @@ class LooterManager(ComplexClient):
 
         self.move_left_and_up_until(cond2)
         self.ensure_mount_is_used()
+        time.sleep(1)
         self.jump_right()
         self.move_right_and_up_until(cond3)
 
+    def after_channel_change(self):
+
+        time.sleep(2)
+        self.toggle_mount()
+        time.sleep(1.5)
+        self.use_stance()
+        time.sleep(1.5)
+        self.ensure_mount_is_used()
+        if self.check_inventory_slots() < 10:
+            return True
+        return False
+
     def click_fm_storage(self):
         # Values are hard-coded since location is never-changing. Prevents issues as there may be characters/animations hindering the npc
-        self.click_at(60, 600)
+        x, y = win32gui.ClientToScreen(self.hwnd, (60, 600))
+        self.click_at(x, y)
 
     def click_fm_seller(self):
-        self.click_at(525, 325)
+        x, y = win32gui.ClientToScreen(self.hwnd, (500, 275))
+        self.click_at(x, y)
 
-    def order_items_to_keep_on_top(self):
+    def determine_items_to_keep(self):
+        # TODO: function that returns the position (within inventory) of each item
         pass
 
-    def sell_items(self):
+    def order_items_to_keep_on_top(self, items_positions):
+        # TODO: function that puts items to keep on top of inventory and returns the nbr of items
+        pass
+
+    def store_items(self, nbr_items):
+        # TODO: function that store those items in storage
+        pass
+
+    def sell_equip_items(self):
+        # When this method is called, the sell_etc_items should ALWAYS be called right afterwards
+
         self.click_fm_seller()
-        x, y = win32gui.ClientToScreen(self.hwnd, (int(100), int(100)))
-        self.move_cursor_to(x, y)
+        self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (int(100), int(100))))  # Move cursors away so as not to hide images
+
         rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.9)
-        x, y, w, h = list(*rect)
-        target_x = x + 30
-        target_y = y + h/2 + 75
-        self.click_at(target_x, target_y)
+        x, y = midpoint(self.hwnd, rect)
+        self.click_at(x, y + 75)  # Click on first item to sell in the list, which is just slightly underneath the screenshot being detected
 
         haystack = self.take_screenshot()
         target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.9)
-        x, y, w, h = list(*target)
-        target_x, target_y = win32gui.ClientToScreen(self.hwnd, (int(x + w/2), int(y + h/2)))
+        x, y = midpoint(self.hwnd, target)
         item_sold = 0
+
+        # TODO: refactor this into several steps such that repositioning of other clients can be done throughout this process
         while item_sold < 96:
-            self.click_at(target_x, target_y)
-            pyPostMessage('press', [0x59, 0], self.hwnd)
+            self.click_at(x, y)
+            pyPostMessage('press', [0x59, 0], self.hwnd)  # Press 'Y' key
             time.sleep(random.uniform(0.01, 0.1))
             item_sold += 1
 
+    def sell_etc_items(self):
+        # ALWAYS call this method after the sell_equip_items method.
+
+        self.click_fm_seller()
+        self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (int(100), int(100))))  # Move cursors away so as not to hide images
+
+        haystack = self.take_screenshot()
+        etc_target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='etc_tab_seller'), cv2.IMREAD_COLOR), threshold=0.9)
+        x, y = midpoint(self.hwnd, etc_target)
+        self.click_at(x, y)  # Go into the ETC tab within the npc's store
+
+        # This method assumes that the inventory has been sorted already.
+        while True:
+            sweat_bead = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='sweat_bead'), cv2.IMREAD_COLOR), threshold=0.9)
+            veetron_horn = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='veetron_horn'), cv2.IMREAD_COLOR), threshold=0.9)
+
+            if len(sweat_bead):
+                x, y = midpoint(self.hwnd, sweat_bead[0])
+                self.double_click_at(x, y)
+                pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+
+            elif len(veetron_horn):
+                x, y = midpoint(self.hwnd, veetron_horn[0])
+                self.double_click_at(x, y)
+                pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+            else:
+                break
+
+        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)  # Close the npc's store
+
     def map_sequence_1(self):
 
+        self.ensure_mount_is_used()
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
         self.jump_right_for(4)
         self.move_right_until(expression=cond)
 
-        pydirectinput.keyDown('up')
-        time.sleep(0.5)
-        pydirectinput.keyUp('up')
-
     def map_sequence_2(self):
 
+        self.ensure_mount_is_used()
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)))"""
         self.jump_left_for(2)
         self.move_left_until(expression=cond)
         time.sleep(0.2)
-        self.jump()
+        self.move_left_for(0.75)
         time.sleep(1.5)
+        self.jump_right()
 
     def map_sequence_3(self):
+
+        self.ensure_mount_is_used()
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR)))"""
+        time.sleep(0.75)
+        self.jump_right()
         self.move_right_and_down_until(expression=cond)
         self.move_down_for(1)
         self.jump_left()
-        time.sleep(1)
+        time.sleep(1.25)
 
     def map_sequence_4(self):
 
+        self.ensure_mount_is_used()
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR)))"""
         self.jump_down()
         time.sleep(0.6)
         self.jump_down()
         time.sleep(1)
         self.move_left_until(expression=cond)
+        self.move_left_for(0.5)
+        self.jump_right_for(2)
+        time.sleep(1.5)
 

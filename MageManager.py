@@ -1,5 +1,6 @@
 from ComplexClient import ComplexClient
 import pydirectinput
+import random
 import pyautogui
 import win32con
 import win32api
@@ -44,8 +45,9 @@ class MageManager(ComplexClient):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='mgkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.1)
+        time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
+        return random.randint(250, 350)
 
     def cast_infinity(self):
 
@@ -53,6 +55,7 @@ class MageManager(ComplexClient):
         pyPostMessage('press', key_config, self.hwnd)
         time.sleep(0.1)
         pyPostMessage('press', key_config, self.hwnd)
+        return random.randint(600, 625)
 
     def cast_door(self):
 
@@ -82,12 +85,12 @@ class MageManager(ComplexClient):
 
             if len(rects_left):
                 print('{} distance with left target: {}'.format(self.ign, char_pos[0][0] - rects_left[0][0]))
-                self.move_right_by(550 - (char_pos[0][0] - rects_left[0][0]))
+                self.move_right_by(500 - (char_pos[0][0] - rects_left[0][0]))
 
             elif len(rects_right):
                 print('{} distance with right target: {}'.format(self.ign, char_pos[0][0] - rects_right[0][0]))
                 self.teleport_left()  # This is a safeguard in cases where mage falls all the way down to the right.
-                self.move_left_by(max(900 - (abs(char_pos[0][0] - rects_right[0][0]) - 250), 0))
+                self.move_left_by(max(550 - (abs(char_pos[0][0] - rects_right[0][0]) - 250), 0))
 
 
     def move_to_car(self):
@@ -120,3 +123,4 @@ class MageManager(ComplexClient):
             images.extend(imgs)
         if self.detect_mobs_multi_image(haystack, images) >= 4:
             self.cast_ult()
+            return True
