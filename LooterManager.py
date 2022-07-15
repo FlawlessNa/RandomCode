@@ -97,7 +97,7 @@ class LooterManager(ComplexClient):
 
     def move_from_door_to_fm(self):
 
-        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
         cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.8))"""
         self.move_left_for(2.5)
 
@@ -260,14 +260,14 @@ class LooterManager(ComplexClient):
         time.sleep(1.5)
         self.jump_right_for(1)
         time.sleep(1.5)
-        self.move_right_until(expression=cond)
+        self.move_right_until(expression=cond, timeout=5)
 
     def map_sequence_2(self):
 
         self.ensure_mount_is_used()
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)))"""
         self.jump_left_for(2)
-        self.move_left_until(expression=cond)
+        self.move_left_until(expression=cond, timeout=10)
         time.sleep(0.2)
         self.move_left_for(0.75)
         time.sleep(1.5)
@@ -281,7 +281,7 @@ class LooterManager(ComplexClient):
         self.jump_right()
         self.move_right_for(1)
         time.sleep(1)
-        self.move_right_and_down_until(expression=cond)
+        self.move_right_and_down_until(expression=cond, timeout=10)
         self.move_down_for(1)
         self.jump_left()
         time.sleep(1.25)
@@ -294,7 +294,7 @@ class LooterManager(ComplexClient):
         time.sleep(0.6)
         self.jump_down()
         time.sleep(1)
-        self.move_left_until(expression=cond)
+        self.move_left_until(expression=cond, timeout=20)
         self.move_left_for(0.5)
         self.jump_right_for(2)
         time.sleep(1.5)
