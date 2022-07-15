@@ -64,7 +64,7 @@ def pyPostMessage(action, key_config=None, hwnd=None, repeat_count=1, previous_k
             repeat_count=repeat_count, key=key, wm_command=win32con.WM_KEYUP, extended_key=extended_param, previous_key_state=previous_key_state, scan_code=scan_code)
 
         win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, key, lparam_keydown)
-        time.sleep(0.05)
+        time.sleep(0.025)
         win32api.PostMessage(hwnd, win32con.WM_KEYUP, key, lparam_keyup)
 
     elif action == 'mousemove':  # TODO: figure out the problem here

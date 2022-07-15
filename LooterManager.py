@@ -94,13 +94,12 @@ class LooterManager(ComplexClient):
             time.sleep(1.5)
             if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR))):
                 break
-        self.toggle_mount()
 
     def move_from_door_to_fm(self):
 
         cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.9))"""
         cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.8))"""
-        self.move_left_for(2)
+        self.move_left_for(2.5)
 
         while True:
             self.move_right_and_up_until(cond1)
@@ -137,7 +136,11 @@ class LooterManager(ComplexClient):
         self.ensure_mount_is_used()
         time.sleep(1)
         self.jump_right()
+        time.sleep(1)
+        self.toggle_mount()
         self.move_right_and_up_until(cond3)
+        time.sleep(1)
+        self.toggle_mount()
 
     def after_channel_change(self):
 
@@ -196,15 +199,15 @@ class LooterManager(ComplexClient):
         self.toggle_inventory()
 
         self.click_fm_seller()
-        self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (int(100), int(100))))  # Move cursors away so as not to hide images
+        self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (random.randint(100, 200), random.randint(100, 200))))  # Move cursors away so as not to hide images
 
-        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.9)
+        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.8)
         x, y = midpoint(self.hwnd, rect)
         self.click_at(x, y + 40)  # Click on first item to sell in the list, which is just slightly underneath the screenshot being detected
 
     def sell_equip_items(self, nbr_sold=0):
         haystack = self.take_screenshot()
-        target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.9)
+        target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.8)
         x, y = midpoint(self.hwnd, target)
         item_sold = nbr_sold
 
@@ -214,6 +217,8 @@ class LooterManager(ComplexClient):
             pyPostMessage('press', [0x59, 0], self.hwnd)  # Press 'Y' key
             time.sleep(random.uniform(0.01, 0.1))
             item_sold += 1
+        self.move_cursor_to(random.randint(100, 200), random.randint(100, 200))
+        return item_sold
 
     def sell_etc_items(self):
         # ALWAYS call this method after the sell_equip_items method.

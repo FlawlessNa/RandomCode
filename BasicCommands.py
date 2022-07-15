@@ -4,6 +4,7 @@ import cv2
 import pydirectinput
 import random
 import pyautogui
+import time
 from PostMessage import pyPostMessage
 from BasicMovements import BasicMovements
 from ImageDetection import find_image, midpoint
@@ -118,6 +119,7 @@ class BasicCommands(BasicMovements):
         if len(rect):
             x, y = midpoint(self.hwnd, rect)
             self.click_at(x, y)
+            time.sleep(0.2)
             self.click_at(x, y)
 
     def turn_pets_on(self):

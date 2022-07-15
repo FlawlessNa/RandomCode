@@ -36,15 +36,19 @@ class BasicMovements(BaseClient):
         time.sleep(duration)
         pydirectinput.keyUp('up')
 
-    def move_up_until(self, expression):
+    def move_up_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown('up')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             if eval(expression):
                 pydirectinput.keyUp('up')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('up')
+                    break
 
     def move_down_by(self, distance):
         time = distance / ((200 / 1.4) * self.get_char_speed())
@@ -56,15 +60,19 @@ class BasicMovements(BaseClient):
         time.sleep(duration)
         pydirectinput.keyUp('down')
 
-    def move_down_until(self, expression):
+    def move_down_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown('down')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             if eval(expression):
                 pydirectinput.keyUp('down')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('down')
+                    break
 
     def move_right_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 140% speed. That's actually a bad estimate because the screen is also moving the pixels around
@@ -77,15 +85,19 @@ class BasicMovements(BaseClient):
         time.sleep(duration)
         pydirectinput.keyUp('right')
 
-    def move_right_until(self, expression):
+    def move_right_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown('right')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             if eval(expression):
                 pydirectinput.keyUp('right')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('right')
+                    break
 
     def move_right_and_up_by(self, distance):
         # FOR PORTALS, NOT CLIMBING UP ROPES
@@ -101,17 +113,21 @@ class BasicMovements(BaseClient):
             pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
         pydirectinput.keyUp('right')
 
-    def move_right_and_up_until(self, expression):
+    def move_right_and_up_until(self, expression, timeout=None):
         # FOR PORTALS, NOT CLIMBING UP ROPES
         self.client.activate()
         pydirectinput.keyDown('right')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
             if eval(expression):
                 pydirectinput.keyUp('right')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('right')
+                    break
 
     def move_right_and_down_by(self, distance):
         # FOR CLIMBING DOWN ROPES
@@ -129,18 +145,23 @@ class BasicMovements(BaseClient):
         pydirectinput.keyUp('down')
         pydirectinput.keyUp('right')
 
-    def move_right_and_down_until(self, expression):
+    def move_right_and_down_until(self, expression, timeout=None):
         # FOR CLIMBING DOWN ROPES
         self.client.activate()
         pydirectinput.keyDown('right')
         pydirectinput.keyDown('down')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             if eval(expression):
                 pydirectinput.keyUp('right')
                 pydirectinput.keyUp('down')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('down')
+                    pydirectinput.keyUp('right')
+                    break
 
     def move_left_by(self, distance):
         # 1 sec is approximately equal to 200 pixel when character has 140% speed.
@@ -153,15 +174,19 @@ class BasicMovements(BaseClient):
         time.sleep(duration)
         pydirectinput.keyUp('left')
 
-    def move_left_until(self, expression):
+    def move_left_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown('left')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             if eval(expression):
                 pydirectinput.keyUp('left')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('left')
+                    break
 
     def move_left_and_up_by(self, distance):
         # FOR PORTALS, NOT CLIMBING UP ROPES
@@ -177,17 +202,21 @@ class BasicMovements(BaseClient):
             pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
         pydirectinput.keyUp('left')
 
-    def move_left_and_up_until(self, expression):
+    def move_left_and_up_until(self, expression, timeout=None):
         # FOR PORTALS, NOT CLIMBING UP ROPES
         self.client.activate()
         pydirectinput.keyDown('left')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
             if eval(expression):
                 pydirectinput.keyUp('left')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('left')
+                    break
 
     def move_left_and_down_by(self, distance):
         # FOR CLIMBING DOWN ROPES
@@ -205,18 +234,23 @@ class BasicMovements(BaseClient):
         pydirectinput.keyUp('down')
         pydirectinput.keyUp('left')
 
-    def move_left_and_down_until(self, expression):
+    def move_left_and_down_until(self, expression, timeout=None):
         # FOR CLIMBING DOWN ROPES
         self.client.activate()
         pydirectinput.keyDown('left')
         pydirectinput.keyDown('down')
+        beginning = time.time()
 
-        loop = True
-        while loop:
+        while True:
             if eval(expression):
                 pydirectinput.keyUp('left')
                 pydirectinput.keyUp('down')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('down')
+                    pydirectinput.keyUp('left')
+                    break
 
     def jump(self):
 
@@ -270,32 +304,47 @@ class BasicMovements(BaseClient):
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('down')
 
-    def jump_right_until(self, expression):
+    def jump_right_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown('right')
-        loop = True
-        while loop:
+        beginning = time.time()
+
+        while True:
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
             if eval(expression):
                 pydirectinput.keyUp('right')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('right')
+                    break
 
-    def jump_left_until(self, expression):
+    def jump_left_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown('left')
-        loop = True
-        while loop:
+        beginning = time.time()
+
+        while True:
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
             if eval(expression):
                 pydirectinput.keyUp('left')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('left')
+                    break
 
-    def jump_down_until(self, expression):
+    def jump_down_until(self, expression, timeout=None):
         self.client.activate()
         pydirectinput.keyDown(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
-        loop = True
-        while loop:
+        beginning = time.time()
+
+        while True:
             pydirectinput.press('altleft')
             if eval(expression):
                 pydirectinput.keyUp('down')
-                loop = False
+                break
+            elif timeout:
+                if time.time() > beginning + timeout:
+                    pydirectinput.keyUp('down')
+                    break
