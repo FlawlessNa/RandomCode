@@ -18,16 +18,17 @@ class QueueManager:
     AFTER_CC = 6
     MOVE_TO_DOOR = 7
     FROM_DOOR_TO_FM = 8
-    SELL_EQUIP_ITEM = 9
-    SELL_ETC_ITEM = 10
-    FROM_FM_TO_DOOR = 11
-    REPOSITION_FIRST = 12
-    REPOSITION_SECOND = 13
-    NEED_DOOR = 14
-    SET_CHANNELS_1 = 15
-    SET_CHANNELS_2 = 16
-    MOVE_FOR_ANTIBOT_BS = 17
-    MOVE_FOR_ANTIBOT_BOT_MAGE = 18
+    SETUP_TO_SELL = 9
+    SELL_EQUIP_ITEM = 10
+    SELL_ETC_ITEM = 11
+    FROM_FM_TO_DOOR = 12
+    REPOSITION_FIRST = 13
+    REPOSITION_SECOND = 14
+    NEED_DOOR = 15
+    SET_CHANNELS_1 = 16
+    SET_CHANNELS_2 = 17
+    MOVE_FOR_ANTIBOT_BS = 18
+    MOVE_FOR_ANTIBOT_BOT_MAGE = 19
 
 
     def __init__(self, config):
@@ -60,6 +61,7 @@ class QueueManager:
         time.sleep(2)  # leaves time for all others to set up properly
         step = 0
         prev_step = 0
+        nbr_sold = 0
 
         while True:
 
@@ -132,12 +134,21 @@ class QueueManager:
             elif step == self.FROM_DOOR_TO_FM:
                 print('step executing: {}'.format(nameof(self.FROM_DOOR_TO_FM)))
                 looter.move_from_door_to_fm()
+                self.q.put(self.SETUP_TO_SELL)
+
+            elif step == self.SETUP_TO_SELL:
+                print('step executing: {}'.format(nameof(self.SETUP_TO_SELL)))
+                looter.setup_for_sell_equip_items()
                 self.q.put(self.SELL_EQUIP_ITEM)
 
             elif step == self.SELL_EQUIP_ITEM:
-                print('step executing: {}'.format(nameof(self.SELL_EQUIP_ITEM)))
-                looter.sell_equip_items()
-                self.q.put(self.SELL_ETC_ITEM)
+                nbr_sold = looter.sell_equip_items(nbr_sold)
+                print('step executing: {} -- number of items sold: {}'.format(nameof(self.SELL_EQUIP_ITEM), nbr_sold))
+                if nbr_sold < 90:
+                    self.q.put(self.SELL_EQUIP_ITEM)
+                else:
+                    nbr_sold = 0
+                    self.q.put(self.SELL_ETC_ITEM)
 
             elif step == self.SELL_ETC_ITEM:
                 print('step executing: {}'.format(nameof(self.SELL_ETC_ITEM)))

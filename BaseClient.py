@@ -130,8 +130,11 @@ class BaseClient:
         # if client isn't found
         return None
 
-    def take_screenshot(self):
-        return take_screenshot(self.client, dim=self.dimensions)
+    def take_screenshot(self, dim=None):
+        if dim is None:
+            return take_screenshot(self.client, dim=self.dimensions)
+        else:
+            return take_screenshot(self.client, dim=dim)
 
     def get_current_channel(self):
 
