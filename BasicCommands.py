@@ -6,7 +6,7 @@ import random
 import pyautogui
 from PostMessage import pyPostMessage
 from BasicMovements import BasicMovements
-from ImageDetection import find_image
+from ImageDetection import find_image, midpoint
 
 
 class BasicCommands(BasicMovements):
@@ -110,21 +110,15 @@ class BasicCommands(BasicMovements):
     def ensure_inventory_is_expanded(self):
         rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_collapsed'), cv2.IMREAD_COLOR), threshold=0.99)
         if len(rect):
-            x, y, w, h = list(*rect)
-            x += w/2
-            y += h/2
-            target_x, target_y = win32gui.ClientToScreen(self.hwnd, (int(x), int(y)))
-            self.click_at(target_x, target_y)
+            x, y = midpoint(self.hwnd, rect)
+            self.click_at(x, y)
 
     def inventory_merge_and_sort(self):
         rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_merge'), cv2.IMREAD_COLOR), threshold=0.99)
         if len(rect):
-            x, y, w, h = list(*rect)
-            x += w/2
-            y += h/2
-            target_x, target_y = win32gui.ClientToScreen(self.hwnd, (int(x), int(y)))
-            self.click_at(target_x, target_y)
-            self.click_at(target_x, target_y)
+            x, y = midpoint(self.hwnd, rect)
+            self.click_at(x, y)
+            self.click_at(x, y)
 
     def turn_pets_on(self):
 
@@ -141,12 +135,8 @@ class BasicCommands(BasicMovements):
         for image in pet_images:
             rect = find_image(haystack, cv2.imread(image, cv2.IMREAD_COLOR), threshold=0.99)
             if len(rect):
-                x, y, w, h = list(*rect)
-
-                center_x, center_y = win32gui.ClientToScreen(self.hwnd, (x, y))
-                center_x += w/2
-                center_y += h/2
-                self.double_click_at(int(center_x), int(center_y))
+                x, y = midpoint(self.hwnd, rect)
+                self.double_click_at(x, y)
 
             rect_multi_pet_trigger = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='multi_pet_trigger'), cv2.IMREAD_COLOR), threshold=0.99)
             if len(rect_multi_pet_trigger):

@@ -3,6 +3,7 @@ from MageManager import MageManager
 import multiprocessing
 import time
 import random
+from varname import nameof
 import cv2
 from ImageDetection import find_image
 
@@ -74,9 +75,9 @@ class QueueManager:
                 prev_step = step
 
             step = self.q.get()
-            print('step executing: {}'.format(step))
 
             if step == self.INITIALIZATION:
+                print('step executing: {}'.format(nameof(self.INITIALIZATION)))
                 self.shared_num.value = self.SET_CHANNELS_1
                 while self.shared_num.value == self.SET_CHANNELS_1:
                     pass
@@ -88,27 +89,33 @@ class QueueManager:
                 self.q.put(self.MAP_SEQUENCE_1)
 
             elif step == self.MAP_SEQUENCE_1:
+                print('step executing: {}'.format(nameof(self.MAP_SEQUENCE_1)))
                 looter.map_sequence_1()
                 self.q.put(self.MAP_SEQUENCE_2)
 
             elif step == self.MAP_SEQUENCE_2:
+                print('step executing: {}'.format(nameof(self.MAP_SEQUENCE_2)))
                 looter.map_sequence_2()
                 self.q.put(self.MAP_SEQUENCE_3)
 
             elif step == self.MAP_SEQUENCE_3:
+                print('step executing: {}'.format(nameof(self.MAP_SEQUENCE_3)))
                 looter.map_sequence_3()
                 self.q.put(self.MAP_SEQUENCE_4)
 
             elif step == self.MAP_SEQUENCE_4:
+                print('step executing: {}'.format(nameof(self.MAP_SEQUENCE_4)))
                 looter.map_sequence_4()
                 self.q.put(self.CHANGING_CHANNELS)
 
             elif step == self.CHANGING_CHANNELS:
+                print('step executing: {}'.format(nameof(self.CHANGING_CHANNELS)))
                 channels = list(self.channels)
                 looter.change_channel(channels[~channels.index(looter.get_current_channel())])
                 self.q.put(self.AFTER_CC)
 
             elif step == self.AFTER_CC:
+                print('step executing: {}'.format(nameof(self.AFTER_CC)))
                 if looter.after_channel_change():
                     if looter.get_current_channel() == self.channels[0]:
                         self.q.put(self.NEED_DOOR)
@@ -118,47 +125,57 @@ class QueueManager:
                     self.q.put(self.MAP_SEQUENCE_1)
 
             elif step == self.MOVE_TO_DOOR:
+                print('step executing: {}'.format(nameof(self.MOVE_TO_DOOR)))
                 looter.move_to_and_enter_door()
                 self.q.put(self.FROM_DOOR_TO_FM)
 
             elif step == self.FROM_DOOR_TO_FM:
+                print('step executing: {}'.format(nameof(self.FROM_DOOR_TO_FM)))
                 looter.move_from_door_to_fm()
                 self.q.put(self.SELL_EQUIP_ITEM)
 
             elif step == self.SELL_EQUIP_ITEM:
+                print('step executing: {}'.format(nameof(self.SELL_EQUIP_ITEM)))
                 looter.sell_equip_items()
                 self.q.put(self.SELL_ETC_ITEM)
 
             elif step == self.SELL_ETC_ITEM:
+                print('step executing: {}'.format(nameof(self.SELL_ETC_ITEM)))
                 looter.sell_etc_items()
                 self.q.put(self.FROM_FM_TO_DOOR)
 
             elif step == self.FROM_FM_TO_DOOR:
+                print('step executing: {}'.format(nameof(self.FROM_FM_TO_DOOR)))
                 looter.move_from_fm_to_door()
                 self.q.put(self.AFTER_CC)
 
             elif step == self.REPOSITION_FIRST:
+                print('step executing: {}'.format(nameof(self.REPOSITION_FIRST)))
                 self.shared_num.value = self.REPOSITION_FIRST
                 while self.shared_num.value == self.REPOSITION_FIRST:
                     pass
 
             elif step == self.REPOSITION_SECOND:
+                print('step executing: {}'.format(nameof(self.REPOSITION_SECOND)))
                 self.shared_num.value = self.REPOSITION_SECOND
                 while self.shared_num.value == self.REPOSITION_SECOND:
                     pass
 
             elif step == self.NEED_DOOR:
+                print('step executing: {}'.format(nameof(self.NEED_DOOR)))
                 self.shared_num.value = self.NEED_DOOR
                 while self.shared_num.value == self.NEED_DOOR:
                     pass
                 self.q.put(self.MOVE_TO_DOOR)
 
             elif step == self.MOVE_FOR_ANTIBOT_BS:
+                print('step executing: {}'.format(nameof(self.MOVE_FOR_ANTIBOT_BS)))
                 self.shared_num.value = self.MOVE_FOR_ANTIBOT_BS
                 while self.shared_num.value == self.MOVE_FOR_ANTIBOT_BS:
                     pass
 
             elif step == self.MOVE_FOR_ANTIBOT_BOT_MAGE:
+                print('step executing: {}'.format(nameof(self.MOVE_FOR_ANTIBOT_BOT_MAGE)))
                 self.shared_num.value = self.MOVE_FOR_ANTIBOT_BOT_MAGE
                 while self.shared_num.value == self.MOVE_FOR_ANTIBOT_BOT_MAGE:
                     pass

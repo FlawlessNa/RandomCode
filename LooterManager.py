@@ -82,22 +82,26 @@ class LooterManager(ComplexClient):
         target = self.config.get(section='Map Images', option='door')
         self.ensure_mount_is_used()
         self.toggle_mount()
+
+        if self.chat_feed_is_displayed():
+            self.toggle_chatfeed()
+
         while True:
             self.move_to_target(target, [-30, 0])
             self.jump()
             time.sleep(0.75)
             self.move_up()
-            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR))):
+            time.sleep(1.5)
+            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR))):
                 break
         self.toggle_mount()
 
     def move_from_door_to_fm(self):
 
         cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.9))"""
-        cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.8))"""
         self.move_left_for(2)
         self.move_right_and_up_until(cond1)
-        time.sleep(1.5)
         self.move_right_and_up_until(cond2)
         self.move_right_for(0.5)
 
@@ -107,6 +111,11 @@ class LooterManager(ComplexClient):
         cond3 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
 
         self.move_left_and_up_until(cond1)
+        time.sleep(1)
+        if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8)):
+            self.move_up()
+            time.sleep(1)
+
         # Minimize chat to better detect the map anchor at this spot
         if self.chat_feed_is_displayed():
             self.toggle_chatfeed()
@@ -139,8 +148,16 @@ class LooterManager(ComplexClient):
         self.click_at(x, y)
 
     def determine_items_to_keep(self):
-        # TODO: function that returns the position (within inventory) of each item
-        pass
+        self.ensure_inventory_is_open()
+        self.ensure_inventory_is_expanded()
+
+        # Get to Equip Inventory
+        while True:
+            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_inventory'), cv2.IMREAD_COLOR), threshold=0.8)):
+                pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
+            else:
+                break
+        self.inventory_merge_and_sort()
 
     def order_items_to_keep_on_top(self, items_positions):
         # TODO: function that puts items to keep on top of inventory and returns the nbr of items
@@ -153,12 +170,24 @@ class LooterManager(ComplexClient):
     def sell_equip_items(self):
         # When this method is called, the sell_etc_items should ALWAYS be called right afterwards
 
+        self.ensure_inventory_is_open()
+        self.ensure_inventory_is_expanded()
+
+        # Get to Etc Inventory
+        while True:
+            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='etc_inventory'), cv2.IMREAD_COLOR), threshold=0.8)):
+                pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
+            else:
+                break
+        self.inventory_merge_and_sort()
+        self.toggle_inventory()
+
         self.click_fm_seller()
         self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (int(100), int(100))))  # Move cursors away so as not to hide images
 
         rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.9)
         x, y = midpoint(self.hwnd, rect)
-        self.click_at(x, y + 75)  # Click on first item to sell in the list, which is just slightly underneath the screenshot being detected
+        self.click_at(x, y + 40)  # Click on first item to sell in the list, which is just slightly underneath the screenshot being detected
 
         haystack = self.take_screenshot()
         target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.9)
@@ -190,12 +219,12 @@ class LooterManager(ComplexClient):
 
             if len(sweat_bead):
                 x, y = midpoint(self.hwnd, sweat_bead[0])
-                self.double_click_at(x, y)
+                self.double_click_at(x + 40, y)  # offset such that the cursor does not hinder the next screenshot
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
             elif len(veetron_horn):
                 x, y = midpoint(self.hwnd, veetron_horn[0])
-                self.double_click_at(x, y)
+                self.double_click_at(x + 40, y)  # offset such that the cursor does not hinder the next screenshot
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
             else:
                 break
@@ -223,7 +252,7 @@ class LooterManager(ComplexClient):
     def map_sequence_3(self):
 
         self.ensure_mount_is_used()
-        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR)))"""
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR), threshold=0.8))"""
         time.sleep(0.75)
         self.jump_right()
         self.move_right_and_down_until(expression=cond)

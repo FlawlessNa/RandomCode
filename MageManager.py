@@ -18,7 +18,7 @@ class MageManager(ComplexClient):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='ultkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.1)
+        time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
 
     def cast_hs(self):
