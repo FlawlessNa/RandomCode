@@ -17,6 +17,7 @@ class MageManager(ComplexClient):
         self.distance_with_left_target = None
         self.distance_with_right_target = None
         self.position = position
+        self.logo = eval(self.config.get(section='IGN Images', option='mage_logo'))[ign]
 
         self.set_targets()
 
@@ -144,7 +145,7 @@ class MageManager(ComplexClient):
     def find_self(self):
 
         # return the point closest to the middle of the client
-        image = self.config.get(section='Character Images', option='mage_medal')
+        image = self.logo
         rects = find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
         if len(rects) > 1:
             dist = []

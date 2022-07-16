@@ -8,6 +8,7 @@ import multiprocessing
 import psutil
 import time
 import cv2
+from HsvFiltering import init_control_gui, get_hsv_filter_from_controls, apply_hsv_filter, HsvFilter
 import random
 
 
@@ -23,31 +24,42 @@ config.read(config.get(section='Login Credentials', option='path'))
 
 if __name__ == '__main__':
 
-    # pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-    # test = MageManager(config, 'LegalizeIt')
+    # test = MageManager(config, 'LegalizeIt', 'bot')
+    # init_control_gui()
     # test.ensure_inventory_is_open()
-    #
     # haystack = test.take_screenshot()
-    # needle = cv2.imread(config.get(section='Inventory Images', option='craven'), cv2.IMREAD_COLOR)
+    # needle = cv2.imread(config.get(section='Inventory Images', option='blood_dagger'), cv2.IMREAD_COLOR)
     # rects = find_image(haystack, needle)
+    # filter = HsvFilter(hMin=0,
+    #                    sMin=0,
+    #                    vMin=255,
+    #                    hMax=0,
+    #                    sMax=0,
+    #                    vMax=255,
+    #                    sAdd=0,
+    #                    sSub=0,
+    #                    vAdd=0,
+    #                    vSub=0)
+    # i = 0
     # for rect in rects:
+    #     i += 1
     #     x, y, w, h = rect
     #     click_x, click_y = midpoint(test.hwnd, rect)  # Do not use the midpoint function to crop screenshots - the midpoint returns location on the actual screen, not on the screenshot
     #     test.move_cursor_to(click_x, click_y)
     #     dimensions = {
-    #         'width': 225,
-    #         'height': 230 - 140,
-    #         'crop_x': int(x + w/2 + 10),
-    #         'crop_y': int(y + h/2 + test.titlebar_pixels + 25) + 140
+    #         'width': 30,
+    #         'height': 15,
+    #         'crop_x': int(x + w/2 + 110),
+    #         'crop_y': int(y + h/2 + test.titlebar_pixels) + 200
     #     }
     #     image_test = test.take_screenshot(dim=dimensions)
-    #     image_test = cv2.GaussianBlur(image_test, (3, 3), 1)
-    #     # ret, image_test = cv2.threshold(image_test, 150, 255, cv2.THRESH_BINARY)
-    #     craven_data = pytesseract.image_to_string(image_test)
-    #     print('data:', craven_data)
-    #
-    #     cv2.imshow('test', image_test)
-    #     cv2.waitKey(0)
+    #     processed = apply_hsv_filter(image_test, filter)
+    #     cv2.imwrite('KeyImages/Inventory/Stats/BloodDagger/image' + str(i) + '.png', processed)
+    #     cv2.imshow('test', processed)
+    #     if cv2.waitKey(1000) == ord('q'):
+    #         cv2.destroyAllWindows()
+    #         break
+
 
     manager = QueueManager(config)
 
