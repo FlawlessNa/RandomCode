@@ -33,3 +33,18 @@ class InventoryManager:
                            'crop_x': 110,
                            'crop_y': 210}
 
+        self.blood_dagger = cv2.imread(self.client.config.get(section='Inventory Images', option='blood_dagger'), cv2.IMREAD_COLOR)
+        self.blood_dagger_box = {'width': 30,
+                                 'height': 15,
+                                 'crop_x': 110,
+                                 'crop_y': 200}
+
+        self.red_pirate_top = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR)
+        self.red_pirate_top_dexbox = {'width': 30,
+                                      'height': 15,
+                                      'crop_x': 40,
+                                      'crop_y': 185}
+        self.red_pirate_top_lukbox = {'width': 30,
+                                      'height': 15,
+                                      'crop_x': 40,
+                                      'crop_y': 200}

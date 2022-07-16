@@ -43,7 +43,7 @@ class BasicCommands(BasicMovements):
         pyPostMessage('press', key_config, self.hwnd)
 
     def click(self):
-        self.client.activate()
+        self.activate()
         pydirectinput.click()
 
     def feed_pet(self):
@@ -58,11 +58,11 @@ class BasicCommands(BasicMovements):
         return timer
 
     def click_at(self, x, y):
-        self.client.activate()
+        self.activate()
         pydirectinput.click(int(x), int(y))
 
     def double_click_at(self, x, y):
-        self.client.activate()
+        self.activate()
         pydirectinput.doubleClick(int(x), int(y))
 
     def move_cursor_to(self, x, y):

@@ -50,13 +50,13 @@ class MageManager(ComplexClient):
 
     def teleport_left(self):
 
-        self.client.activate()
+        self.activate()
         pydirectinput.keyDown('left')
         pydirectinput.press(self.config.get(section='KEYBINDS - Mage - pyautogui', option='teleportkey'))
         pydirectinput.keyUp('left')
 
     def teleport_right(self):
-        self.client.activate()
+        self.activate()
         pydirectinput.keyDown('right')
         pydirectinput.press(self.config.get(section='KEYBINDS - Mage - pyautogui', option='teleportkey'))
         pydirectinput.keyUp('right')

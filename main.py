@@ -24,11 +24,11 @@ config.read(config.get(section='Login Credentials', option='path'))
 
 if __name__ == '__main__':
 
-    # test = MageManager(config, 'LegalizeIt', 'bot')
+    # test = MageManager(config, 'Goldmine1', 'bot')
     # init_control_gui()
     # test.ensure_inventory_is_open()
     # haystack = test.take_screenshot()
-    # needle = cv2.imread(config.get(section='Inventory Images', option='blood_dagger'), cv2.IMREAD_COLOR)
+    # needle = cv2.imread(config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR)
     # rects = find_image(haystack, needle)
     # filter = HsvFilter(hMin=0,
     #                    sMin=0,
@@ -49,17 +49,16 @@ if __name__ == '__main__':
     #     dimensions = {
     #         'width': 30,
     #         'height': 15,
-    #         'crop_x': int(x + w/2 + 110),
+    #         'crop_x': int(x + w/2 + 40),
     #         'crop_y': int(y + h/2 + test.titlebar_pixels) + 200
     #     }
     #     image_test = test.take_screenshot(dim=dimensions)
     #     processed = apply_hsv_filter(image_test, filter)
-    #     cv2.imwrite('KeyImages/Inventory/Stats/BloodDagger/image' + str(i) + '.png', processed)
+    #     # cv2.imwrite('KeyImages/Inventory/Stats/BloodDagger/image' + str(i) + '.png', processed)
     #     cv2.imshow('test', processed)
-    #     if cv2.waitKey(1000) == ord('q'):
+    #     if cv2.waitKey(10000) == ord('q'):
     #         cv2.destroyAllWindows()
     #         break
-
 
     manager = QueueManager(config)
 

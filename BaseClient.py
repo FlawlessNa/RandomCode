@@ -40,7 +40,7 @@ class BaseClient:
             }
             self.set_current_channel()
 
-        self.reposition_client(eval(self.config.get(section='Clients Positioning', option='position_dict'))[self.ign])
+        # self.reposition_client(eval(self.config.get(section='Clients Positioning', option='position_dict'))[self.ign])
 
     def open(self, char_type):
         # Apparently, opening the 800x600 doesnt work, but we can instead open the shortcut on the Desktop and it works..
