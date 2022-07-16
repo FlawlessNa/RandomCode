@@ -29,13 +29,14 @@ class QueueManager:
     SELL_EQUIP_ITEM = 18
     SELL_ETC_ITEM = 19
     FROM_FM_TO_DOOR = 20
-    REPOSITION_TOP_FIRST = 21
-    REPOSITION_TOP_SECOND = 22
-    REPOSITION_BOT_FIRST = 23
-    REPOSITION_BOT_SECOND = 24
-    NEED_DOOR = 25
-    SET_CHANNELS_1 = 26
-    SET_CHANNELS_2 = 27
+    BACK_FROM_FM = 21
+    REPOSITION_TOP_FIRST = 22
+    REPOSITION_TOP_SECOND = 23
+    REPOSITION_BOT_FIRST = 24
+    REPOSITION_BOT_SECOND = 25
+    NEED_DOOR = 26
+    SET_CHANNELS_1 = 27
+    SET_CHANNELS_2 = 28
 
 
     def __init__(self, config):
@@ -206,7 +207,12 @@ class QueueManager:
             elif step == self.FROM_FM_TO_DOOR:
                 print('step executing: {}'.format(nameof(self.FROM_FM_TO_DOOR)))
                 looter.move_from_fm_to_door()
-                self.q.put(self.AFTER_CC)
+                self.q.put(self.BACK_FROM_FM)
+
+            elif step == self.BACK_FROM_FM:
+                print('step executing: {}'.format(nameof(self.BACK_FROM_FM)))
+                self.q.put(self.NEED_HS)
+
 
             elif step == self.REPOSITION_TOP_FIRST:
                 print('step executing: {}'.format(nameof(self.REPOSITION_TOP_FIRST)))

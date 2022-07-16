@@ -24,7 +24,7 @@ class MageManager(ComplexClient):
 
         if self.position == 'bot':
             self.left_positioning_target = cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR)
-            self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+            self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='right_ladder'), cv2.IMREAD_COLOR)
             self.distance_with_left_target = 450
             self.distance_with_right_target = 425
         elif self.position == 'top':
@@ -63,10 +63,12 @@ class MageManager(ComplexClient):
     def cast_mg(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='mgkey'))
-        pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.2)
-        pyPostMessage('press', key_config, self.hwnd)
-        return random.randint(200, 300)
+        while True:
+            pyPostMessage('press', key_config, self.hwnd)
+            time.sleep(0.2)
+            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Misc Images', option='fresh_mg'), cv2.IMREAD_COLOR), threshold=0.9)):
+                break
+        return random.randint(200, 250)
 
     def cast_infinity(self):
 
