@@ -28,7 +28,7 @@ class ComplexClient(BasicCommands):
 
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='change_channel_check'), cv2.IMREAD_COLOR))):
+            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='change_channel_check'), cv2.IMREAD_COLOR))):
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
             else:
                 break
