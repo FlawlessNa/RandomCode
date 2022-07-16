@@ -54,6 +54,10 @@ class ComplexClient(BasicCommands):
         x, y = pyautogui.locateCenterOnScreen(image=self.config.get(section='Misc Images', option='party_invite_prompt'), region=self.client.box, confidence=0.95)
         pyautogui.doubleClick(x, y)
 
+    def check_current_location(self):
+        # TODO Use the buddy list (the character's location is written in there) to assess in which map the character is currently located
+        pass
+
     def setup_hp_threshold(self):
 
         nbr_ticks_right = eval(self.config.get(section='HP Threshold', option='threshold_dict'))[self.ign]
@@ -101,15 +105,14 @@ class ComplexClient(BasicCommands):
 
         pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-
-    def move_to_target(self, target, acceptable_dist_range):
+    def move_to_target(self, target, acceptable_dist_range, threshold=0.7):
 
         min_dist, max_dist = acceptable_dist_range
         loop = True
         increment = 1
         while loop:
             current_pos = self.find_self()
-            target_pos = find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))
+            target_pos = find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR), threshold=threshold)
             if len(target_pos) and len(current_pos):
                 current_pos_x = current_pos[0][0]
                 target_pos_x = target_pos[0][0]

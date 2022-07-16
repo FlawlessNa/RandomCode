@@ -1,8 +1,6 @@
 from ComplexClient import ComplexClient
 import pyautogui
-import pydirectinput
 import time
-import win32api
 import win32gui
 import win32con
 from PostMessage import pyPostMessage
@@ -20,7 +18,6 @@ class LooterManager(ComplexClient):
 
         key_config = eval(self.config.get(section='KEYBINDS - Looter', option='stancekey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.8)
 
     def chat_feed_is_displayed(self):
         if pyautogui.locateOnScreen(image='KeyImages/Feed_is_Displayed.png', region=self.client.box) is not None:
@@ -40,7 +37,6 @@ class LooterManager(ComplexClient):
 
         key_config = eval(self.config.get(section='KEYBINDS - Looter', option='mountkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.3)
 
     def check_is_mounted(self):
         if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Mount Image', option='mount_icon'), cv2.IMREAD_COLOR))):
@@ -79,19 +75,44 @@ class LooterManager(ComplexClient):
 
     def move_to_and_enter_door(self):
 
-        target = self.config.get(section='Map Images', option='door')
+        self.map_sequence_1()
+        self.map_sequence_2()
         self.ensure_mount_is_used()
+        time.sleep(1)
         self.toggle_mount()
+        self.move_cursor_to(random.randint(100, 200), random.randint(100, 200))
+
+        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='ulu1'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD'), cv2.IMREAD_COLOR), threshold=0.8))"""
+        target = self.config.get(section='Map Images', option='door')
+        while True:
+            if len(find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))):
+                self.move_to_target(target, [-30, 0], threshold=0.9)
+                self.move_up()
+                time.sleep(1)
+                self.toggle_buddy_list()
+                if eval(cond1) and eval(cond2):
+                    self.toggle_buddy_list()
+                    break
+            else:
+                self.toggle_buddy_list()
+                self.move_right_and_up_until(cond1, timeout=5)
+                time.sleep(1.5)
+                if eval(cond2):
+                    self.toggle_buddy_list()
+                    break
+                else:
+                    print('Figure out better way to reach door!')
+
 
         if self.chat_feed_is_displayed():
             self.toggle_chatfeed()
 
         while True:
-            self.move_to_target(target, [-30, 0])
-            self.jump()
-            time.sleep(0.75)
+            self.move_to_target(target, [-30, 0], threshold=0.9)
             self.move_up()
             time.sleep(1.5)
+            # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
             if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR))):
                 break
 
@@ -111,6 +132,7 @@ class LooterManager(ComplexClient):
         while True:
             self.move_right_and_up_until(cond2)
             time.sleep(1)
+            # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
             if eval(cond2):
                 break
 
@@ -123,6 +145,7 @@ class LooterManager(ComplexClient):
 
         self.move_left_and_up_until(cond1)
         time.sleep(1)
+        # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
         if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8)):
             self.move_up()
             time.sleep(1)
@@ -140,6 +163,7 @@ class LooterManager(ComplexClient):
         self.toggle_mount()
         self.move_right_and_up_until(cond3)
         time.sleep(1)
+        # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
         self.toggle_mount()
 
     def after_channel_change(self):
@@ -150,7 +174,7 @@ class LooterManager(ComplexClient):
         self.use_stance()
         time.sleep(1.5)
         self.ensure_mount_is_used()
-        if self.check_inventory_slots() < 10:
+        if self.check_inventory_slots() < 15:
             return True
         return False
 
@@ -255,47 +279,69 @@ class LooterManager(ComplexClient):
     def map_sequence_1(self):
 
         self.ensure_mount_is_used()
-        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
         self.jump_right_for(2)
         time.sleep(1.5)
-        self.jump_right_for(1)
-        time.sleep(1.5)
-        self.move_right_until(expression=cond, timeout=5)
 
     def map_sequence_2(self):
 
-        self.ensure_mount_is_used()
-        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)))"""
-        self.jump_left_for(2)
-        self.move_left_until(expression=cond, timeout=10)
-        time.sleep(0.2)
-        self.move_left_for(0.75)
+        self.jump_right_for(1)
         time.sleep(1.5)
-        self.jump_right()
 
     def map_sequence_3(self):
 
-        self.ensure_mount_is_used()
-        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR), threshold=0.8))"""
-        time.sleep(0.75)
-        self.jump_right()
-        self.move_right_for(1)
-        time.sleep(1)
-        self.move_right_and_down_until(expression=cond, timeout=10)
-        self.move_down_for(1)
-        self.jump_left()
-        time.sleep(1.25)
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
+        self.move_right_until(expression=cond, timeout=5)
 
     def map_sequence_4(self):
 
         self.ensure_mount_is_used()
-        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR)))"""
+        self.jump_left_for(3)
+
+    def map_sequence_5(self):
+
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)))"""
+        self.move_left_until(expression=cond, timeout=6)
+        time.sleep(0.2)
+
+    def map_sequence_6(self):
+
+        self.move_left_for(0.75)
+        time.sleep(1.5)
+        self.jump_right()
+        time.sleep(0.75)
+
+    def map_sequence_7(self):
+
+        self.ensure_mount_is_used()
+        time.sleep(0.75)
+        self.jump_right()
+        self.move_right_for(1)
+        time.sleep(1)
+
+    def map_sequence_8(self):
+
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR), threshold=0.8))"""
+        self.move_right_and_down_until(expression=cond, timeout=6)
+        self.move_down_for(1.5)
+
+    def map_sequence_9(self):
+
+        self.jump_left()
+        time.sleep(1.25)
         self.jump_down()
         time.sleep(0.6)
         self.jump_down()
-        time.sleep(1)
-        self.move_left_until(expression=cond, timeout=20)
+        self.move_right_for(1.5)
+
+    def map_sequence_10(self):
+
+        cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR)))"""
+        self.jump_left_for(2)
+        self.move_left_until(expression=cond, timeout=8)
+
+    def map_sequence_11(self):
+
         self.move_left_for(0.5)
-        self.jump_right_for(2)
+        self.jump_right_for(3.5)
         time.sleep(1.5)
 

@@ -9,8 +9,7 @@ import psutil
 import time
 import cv2
 import random
-from PostMessage import pyPostMessage
-import pytesseract
+
 
 user = 'Nass'
 config = ConfigParser()
@@ -54,9 +53,9 @@ if __name__ == '__main__':
 
     proc1 = multiprocessing.Process(target=manager.looter)
     proc2 = multiprocessing.Process(target=manager.bishop)
-    proc3 = multiprocessing.Process(target=manager.bot_mage, args=('Goldmine1', ))
-    proc4 = multiprocessing.Process(target=manager.top_mage, args=('Goldmine2', 1, ))
-    proc5 = multiprocessing.Process(target=manager.top_mage, args=('Goldmine3', 2, ))
+    proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
+    proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
+    proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
 
     proc1.start()
     proc2.start()

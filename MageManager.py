@@ -1,18 +1,37 @@
 from ComplexClient import ComplexClient
 import pydirectinput
 import random
-import pyautogui
-import win32con
-import win32api
 import time
 import cv2
 from PostMessage import pyPostMessage
-from ImageDetection import take_screenshot, find_image
+from ImageDetection import find_image, midpoint
+import math
+import win32gui
 
 
 class MageManager(ComplexClient):
-    def __init__(self, config, ign):
+    def __init__(self, config, ign, position):
         super().__init__(config, ign)
+        self.left_positioning_target = None
+        self.right_positioning_target = None
+        self.distance_with_left_target = None
+        self.distance_with_right_target = None
+        self.position = position
+
+        self.set_targets()
+
+    def set_targets(self):
+
+        if self.position == 'bot':
+            self.left_positioning_target = cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR)
+            self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+            self.distance_with_left_target = 450
+            self.distance_with_right_target = 425
+        elif self.position == 'top':
+            self.left_positioning_target = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
+            self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+            self.distance_with_left_target = 500
+            self.distance_with_right_target = 750
 
     def cast_ult(self):
 
@@ -25,7 +44,7 @@ class MageManager(ComplexClient):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='hskey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.1)
+        time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
 
     def teleport_left(self):
@@ -47,13 +66,13 @@ class MageManager(ComplexClient):
         pyPostMessage('press', key_config, self.hwnd)
         time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
-        return random.randint(250, 350)
+        return random.randint(200, 300)
 
     def cast_infinity(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='infinitykey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.1)
+        time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
         return random.randint(600, 625)
 
@@ -61,15 +80,14 @@ class MageManager(ComplexClient):
 
         key_config = eval(self.config.get(section='KEYBINDS - Mage', option='doorkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        time.sleep(0.1)
+        time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
 
     def reposition_needed(self):
-        needle_left = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
-        needle_right = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+
         haystack = self.take_screenshot()
-        rects_left = find_image(haystack, needle_left)
-        rects_right = find_image(haystack, needle_right)
+        rects_left = find_image(haystack, self.left_positioning_target)
+        rects_right = find_image(haystack, self.right_positioning_target)
 
         if len(rects_left) or len(rects_right):
             return True
@@ -77,21 +95,32 @@ class MageManager(ComplexClient):
     def reposition(self):
         char_pos = self.find_self()
         if len(char_pos):
-            needle_left = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
-            needle_right = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+            char_x, char_y = midpoint(self.hwnd, char_pos)
+
             haystack = self.take_screenshot()
-            rects_left = find_image(haystack, needle_left)
-            rects_right = find_image(haystack, needle_right)
+            rects_left = find_image(haystack, self.left_positioning_target, threshold=0.8)
+            rects_right = find_image(haystack, self.right_positioning_target, threshold=0.9)
 
             if len(rects_left):
-                print('{} distance with left target: {}'.format(self.ign, char_pos[0][0] - rects_left[0][0]))
-                self.move_right_by(500 - (char_pos[0][0] - rects_left[0][0]))
+                target_x, target_y = midpoint(self.hwnd, rects_left)
+                print('{} distance with left target: {}'.format(self.ign, abs(char_x - target_x)))
+                if char_x > target_x:
+                    self.move_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
+                else:
+                    self.move_right_by(self.distance_with_left_target + abs(char_x - target_x))
 
             elif len(rects_right):
-                print('{} distance with right target: {}'.format(self.ign, char_pos[0][0] - rects_right[0][0]))
-                self.teleport_left()  # This is a safeguard in cases where mage falls all the way down to the right.
-                self.move_left_by(max(550 - (abs(char_pos[0][0] - rects_right[0][0]) - 250), 0))
+                target_x, target_y = midpoint(self.hwnd, rects_right)
+                print('{} distance with right target: {}'.format(self.ign, abs(char_x - target_x)))
 
+                # safeguard to make sure character is still on the top-most platform
+                if char_x - target_x > - 175 and self.position == 'top':
+                    self.teleport_left()
+
+                if char_x < target_x:
+                    self.move_left_by(max(0, self.distance_with_right_target - abs(char_x - target_x)))
+                else:
+                    self.move_left_by(self.distance_with_right_target + abs(char_x - target_x))
 
     def move_to_car(self):
         loop = True
@@ -107,12 +136,22 @@ class MageManager(ComplexClient):
                 self.jump()
             loop = False
 
-    def find_self(self):
-        image = self.config.get(section='Character Images', option='mage_medal')
-        return find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
-
     def move_to_top(self):
         pass
+
+    def find_self(self):
+
+        # return the point closest to the middle of the client
+        image = self.config.get(section='Character Images', option='mage_medal')
+        rects = find_image(haystack=self.take_screenshot(), needle=cv2.imread(image, cv2.IMREAD_COLOR))
+        if len(rects) > 1:
+            dist = []
+            for rect in rects:
+                x, y = midpoint(self.hwnd, rect)
+                client_x, client_y = win32gui.ClientToScreen(self.hwnd, (int(self.client.width/2), int(self.client.height/2)))
+                dist.append(math.sqrt((x - client_x) ** 2 + (y - client_y) ** 2))
+            return rects[dist.index(min(dist))]
+        return rects
 
     def farm(self):
 

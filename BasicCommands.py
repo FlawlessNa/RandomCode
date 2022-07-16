@@ -3,7 +3,6 @@ import win32gui
 import cv2
 import pydirectinput
 import random
-import pyautogui
 import time
 from PostMessage import pyPostMessage
 from BasicMovements import BasicMovements
@@ -37,6 +36,10 @@ class BasicCommands(BasicMovements):
 
     def toggle_equip_window(self):
         key_config = eval(self.config.get(section='KEYBINDS - Common', option='equipwindowkey'))
+        pyPostMessage('press', key_config, self.hwnd)
+
+    def toggle_buddy_list(self):
+        key_config = eval(self.config.get(section='KEYBINDS - Common', option='togglebuddylist'))
         pyPostMessage('press', key_config, self.hwnd)
 
     def click(self):
