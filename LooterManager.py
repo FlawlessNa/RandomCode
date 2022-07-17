@@ -81,7 +81,7 @@ class LooterManager(ComplexClient):
         self.move_cursor_to(random.randint(100, 200), random.randint(100, 200))
         self.toggle_buddy_list()
 
-        self.move_right_and_up_until(cond1)
+        self.move_right_and_up_until(cond1, timeout=8)
         time.sleep(1.25)
 
         while True:
