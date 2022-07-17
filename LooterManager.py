@@ -69,46 +69,30 @@ class LooterManager(ComplexClient):
 
     def move_to_and_enter_door(self):
 
+        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='ulu1'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD'), cv2.IMREAD_COLOR), threshold=0.8))"""
+        cond3 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='ulu1'), cv2.IMREAD_COLOR), threshold=0.9))"""
+        target = self.config.get(section='Map Images', option='door')
+
         self.map_sequence_1()
-        self.map_sequence_2()
         self.ensure_mount_is_used()
         time.sleep(1)
         self.toggle_mount()
         self.move_cursor_to(random.randint(100, 200), random.randint(100, 200))
+        self.toggle_buddy_list()
 
-        cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='ulu1'), cv2.IMREAD_COLOR), threshold=0.9))"""
-        cond2 = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD'), cv2.IMREAD_COLOR), threshold=0.8))"""
-        target = self.config.get(section='Map Images', option='door')
-        while True:
-            if len(find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))):
-                self.move_to_target(target, [-30, 0], threshold=0.9)
-                self.move_up()
-                time.sleep(1)
-                self.toggle_buddy_list()
-                if eval(cond1) and eval(cond2):
-                    self.toggle_buddy_list()
-                    break
-            else:
-                self.toggle_buddy_list()
-                self.move_right_and_up_until(cond1, timeout=5)
-                time.sleep(1.5)
-                if eval(cond2):
-                    self.toggle_buddy_list()
-                    break
-                else:
-                    print('Figure out better way to reach door!')
-
-
-        if self.chat_feed_is_displayed():
-            self.toggle_chatfeed()
+        self.move_right_and_up_until(cond1)
+        time.sleep(1.25)
 
         while True:
-            self.move_to_target(target, [-30, 0], threshold=0.9)
-            self.move_up()
-            time.sleep(1.5)
-            # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
-            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR))):
+
+            if eval(cond2):
+                self.toggle_buddy_list()
                 break
+            elif eval(cond3):
+                if len(find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))):
+                    self.move_to_target(target, [-30, 0], threshold=0.7)
+                    self.move_up()
 
     def move_from_door_to_fm(self):
 
