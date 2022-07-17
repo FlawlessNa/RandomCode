@@ -14,6 +14,8 @@ class ComplexClient(BasicCommands):
     def change_channel(self, destination):
 
         nbr_keys = self.get_current_channel() - destination
+        if self.chat_feed_is_displayed():
+            self.toggle_chatfeed()
 
         while True:
             pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
@@ -33,7 +35,7 @@ class ComplexClient(BasicCommands):
             if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='change_channel_check'), cv2.IMREAD_COLOR))):
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
             else:
-                time.sleep(0.5)
+                time.sleep(1)
                 if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR))):
                     break
 

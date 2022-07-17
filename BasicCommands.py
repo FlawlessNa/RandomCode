@@ -7,12 +7,19 @@ import time
 from PostMessage import pyPostMessage
 from BasicMovements import BasicMovements
 from ImageDetection import find_image, midpoint
+import pyautogui
 
 
 class BasicCommands(BasicMovements):
 
     def __init__(self, config, ign):
         super().__init__(config, ign)
+
+    def chat_feed_is_displayed(self):
+        if pyautogui.locateOnScreen(image='KeyImages/Feed_is_Displayed.png', region=self.client.box) is not None:
+            return True
+        else:
+            return False
 
     def toggle_character_stats(self):
 

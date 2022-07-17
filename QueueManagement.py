@@ -160,8 +160,8 @@ class QueueManager:
                 self.q.put(self.CHANGING_CHANNELS)
 
             elif step == self.CHANGING_CHANNELS:
-                print('step executing: {}'.format(nameof(self.CHANGING_CHANNELS)))
                 channels = list(self.channels)
+                print('step executing: {} -- Target channel: {}'.format(nameof(self.CHANGING_CHANNELS), channels[~channels.index(looter.get_current_channel())]))
                 looter.change_channel(channels[~channels.index(looter.get_current_channel())])
                 self.q.put(self.AFTER_CC)
 

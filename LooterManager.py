@@ -19,12 +19,6 @@ class LooterManager(ComplexClient):
         key_config = eval(self.config.get(section='KEYBINDS - Looter', option='stancekey'))
         pyPostMessage('press', key_config, self.hwnd)
 
-    def chat_feed_is_displayed(self):
-        if pyautogui.locateOnScreen(image='KeyImages/Feed_is_Displayed.png', region=self.client.box) is not None:
-            return True
-        else:
-            return False
-
     def feed_mount(self):
 
         key_config = eval(self.config.get(section='KEYBINDS - Looter', option='mountfoodkey'))
@@ -168,11 +162,11 @@ class LooterManager(ComplexClient):
 
     def after_channel_change(self):
 
-        time.sleep(2)
+        time.sleep(1)
         self.toggle_mount()
-        time.sleep(1.5)
+        time.sleep(1.25)
         self.use_stance()
-        time.sleep(1.5)
+        time.sleep(1.25)
         self.ensure_mount_is_used()
         if self.check_inventory_slots() < 15:
             return True
