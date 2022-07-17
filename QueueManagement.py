@@ -289,7 +289,7 @@ class QueueManager:
             if ult_cast:
                 # When ult is cast, we want program to sleep for 2.8 seconds. However, we can still use this time to feed pet
                 now = time.time()
-                while time.time() - now < 2.8:
+                while time.time() - now < 3:
                     if time.time() > curr_pet_food_time + next_pet_food:
                         curr_pet_food_time = time.time()
                         next_pet_food = bs.feed_pet()

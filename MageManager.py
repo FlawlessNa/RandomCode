@@ -67,7 +67,7 @@ class MageManager(ComplexClient):
         while True:
             pyPostMessage('press', key_config, self.hwnd)
             time.sleep(0.2)
-            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Misc Images', option='fresh_mg'), cv2.IMREAD_COLOR), threshold=0.9)):
+            if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Misc Images', option='fresh_mg'), cv2.IMREAD_COLOR), threshold=0.95)):
                 break
         return random.randint(200, 250)
 

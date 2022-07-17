@@ -58,7 +58,6 @@ class BasicCommands(BasicMovements):
         return timer
 
     def click_at(self, x, y):
-        self.activate()
         pydirectinput.click(int(x), int(y))
 
     def double_click_at(self, x, y):

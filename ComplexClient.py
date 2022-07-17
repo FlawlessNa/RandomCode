@@ -4,6 +4,7 @@ from BasicCommands import BasicCommands
 from PostMessage import pyPostMessage
 from ImageDetection import find_image
 import cv2
+import time
 
 class ComplexClient(BasicCommands):
 
@@ -28,10 +29,13 @@ class ComplexClient(BasicCommands):
 
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
+            time.sleep(0.25)
             if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='change_channel_check'), cv2.IMREAD_COLOR))):
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
             else:
-                break
+                time.sleep(1)
+                if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR))):
+                    break
 
         self.set_current_channel(destination)
 
@@ -110,6 +114,7 @@ class ComplexClient(BasicCommands):
         min_dist, max_dist = acceptable_dist_range
         loop = True
         increment = 1
+        counter = 0
         while loop:
             current_pos = self.find_self()
             target_pos = find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR), threshold=threshold)
@@ -117,6 +122,9 @@ class ComplexClient(BasicCommands):
                 current_pos_x = current_pos[0][0]
                 target_pos_x = target_pos[0][0]
             else:
+                counter += 1
+                if counter > 15:
+                    break
                 continue  # This would happen if there are animations (such as an ult) blocking the target
 
             distance = target_pos_x - current_pos_x
