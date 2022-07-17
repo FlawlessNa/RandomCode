@@ -29,11 +29,11 @@ class ComplexClient(BasicCommands):
 
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-            time.sleep(0.25)
+            time.sleep(1.25)
             if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='change_channel_check'), cv2.IMREAD_COLOR))):
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
             else:
-                time.sleep(1)
+                time.sleep(0.5)
                 if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='target_sequence_4'), cv2.IMREAD_COLOR))):
                     break
 
