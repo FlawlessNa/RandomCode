@@ -20,7 +20,7 @@ class BasicCommands(BasicMovements):
                'height': 50,
                'crop_x': 600,
                'crop_y': 715}
-        if len(find_image(self.take_screenshot(dim), cv2.imread(self.config.get(section='Misc Images', option='feed_displayed')), threshold=0.9)):
+        if len(find_image(self.take_screenshot(dim), cv2.imread(self.config.get(section='Misc Images', option='feed_displayed')), threshold=0.95)):
             return True
         else:
             return False
@@ -61,7 +61,7 @@ class BasicCommands(BasicMovements):
 
         key_config = eval(self.config.get(section='KEYBINDS - Common', option='petfoodkey'))
         pyPostMessage('press', key_config, self.hwnd)
-        return random.randint(450, 600)
+        return random.randint(650, 800)
 
     def feed_multiple_pets(self, nbr_press):
         for i in range(nbr_press):

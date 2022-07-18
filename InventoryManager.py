@@ -39,7 +39,17 @@ class InventoryManager:
                                  'crop_x': 110,
                                  'crop_y': 200}
 
-        self.red_pirate_top = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR)
+        self.red_pirate_pants = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR)
+        self.red_pirate_pants_dexbox = {'width': 30,
+                                      'height': 15,
+                                      'crop_x': 40,
+                                      'crop_y': 185}
+        self.red_pirate_pants_lukbox = {'width': 30,
+                                      'height': 15,
+                                      'crop_x': 40,
+                                      'crop_y': 200}
+
+        self.red_pirate_top = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_top'), cv2.IMREAD_COLOR)
         self.red_pirate_top_dexbox = {'width': 30,
                                       'height': 15,
                                       'crop_x': 40,
@@ -48,3 +58,14 @@ class InventoryManager:
                                       'height': 15,
                                       'crop_x': 40,
                                       'crop_y': 200}
+
+        self.white_pioneer = cv2.imread(self.client.config.get(section='Inventory Images', option='white_pioneer'), cv2.IMREAD_COLOR)
+        self.white_pioneer_strbox = {'width': 30,
+                                     'height': 15,
+                                     'crop_x': 40,
+                                     'crop_y': 185}
+        self.white_pioneer_dexbox = {'width': 30,
+                                     'height': 15,
+                                     'crop_x': 40,
+                                     'crop_y': 200}
+

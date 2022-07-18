@@ -89,7 +89,9 @@ class LooterManager(ComplexClient):
             if eval(cond2):
                 self.toggle_buddy_list()
                 break
+            # TODO: Improve this elif clause since it only attemps to detect door once and the door may be hindered by a mage ult
             elif eval(cond3):
+                self.toggle_buddy_list()
                 if len(find_image(self.take_screenshot(), cv2.imread(target, cv2.IMREAD_COLOR))):
                     self.move_to_target(target, [-30, 0], threshold=0.7)
                     self.move_up()
@@ -235,17 +237,19 @@ class LooterManager(ComplexClient):
             haystack = self.take_screenshot()
             sweat_bead = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sweat_bead'), cv2.IMREAD_COLOR), threshold=0.9)
             veetron_horn = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='veetron_horn'), cv2.IMREAD_COLOR), threshold=0.9)
-            leave_store = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='leave_store'), cv2.IMREAD_COLOR), threshold=0.9)
+            leave_store = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='leave_store'), cv2.IMREAD_COLOR), threshold=0.8)
 
             if len(sweat_bead):
                 x, y = midpoint(self.hwnd, sweat_bead[0])
                 self.double_click_at(x + 40, y)  # offset such that the cursor does not hinder the next screenshot
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+                time.sleep(0.25)
 
             elif len(veetron_horn):
                 x, y = midpoint(self.hwnd, veetron_horn[0])
                 self.double_click_at(x + 40, y)  # offset such that the cursor does not hinder the next screenshot
                 pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+                time.sleep(0.25)
             else:
                 x, y = midpoint(self.hwnd, leave_store)
                 self.click_at(x, y)
