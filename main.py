@@ -93,11 +93,11 @@ if __name__ == '__main__':
     # proc4.join()
     # proc5.join()
 
-    # test = LooterManager(config, 'Guarding')
-    # while True:
-    #     img = test.take_screenshot(dim={'width': 75, 'height': 50, 'crop_x': 600, 'crop_y': 715})
-    #     cv2.imshow('test', img)
-    #     if cv2.waitKey(1000) == ord('q'):
-    #         cv2.destroyAllWindows()
-    #         break
+    test = LooterManager(config, 'Guarding')
+    test.setup_for_sell_equip_items()
+    test.sell_equip_items()
+    test.sell_etc_items()
+    test.move_from_fm_to_door()
+
+
 

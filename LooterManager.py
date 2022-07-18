@@ -213,7 +213,6 @@ class LooterManager(ComplexClient):
         x, y = midpoint(self.hwnd, target)
         item_sold = nbr_sold
 
-        # TODO: refactor this into several steps such that repositioning of other clients can be done throughout this process
         while item_sold < nbr_sold + 10:
             self.click_at(x, y)
             pyPostMessage('press', [0x59, 0], self.hwnd)  # Press 'Y' key
@@ -225,7 +224,6 @@ class LooterManager(ComplexClient):
     def sell_etc_items(self):
         # ALWAYS call this method after the sell_equip_items method.
 
-        self.click_fm_seller()
         self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (int(100), int(100))))  # Move cursors away so as not to hide images
 
         haystack = self.take_screenshot()

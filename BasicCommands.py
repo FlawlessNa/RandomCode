@@ -128,11 +128,11 @@ class BasicCommands(BasicMovements):
             self.click_at(x, y)
 
     def inventory_merge_and_sort(self):
-        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_merge'), cv2.IMREAD_COLOR), threshold=0.99)
+        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='inventory_merge'), cv2.IMREAD_COLOR), threshold=0.95)
         if len(rect):
             x, y = midpoint(self.hwnd, rect)
             self.click_at(x, y)
-            time.sleep(0.2)
+            time.sleep(0.5)
             self.click_at(x, y)
 
     def turn_pets_on(self):
