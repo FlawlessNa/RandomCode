@@ -94,6 +94,7 @@ if __name__ == '__main__':
     # proc5.join()
 
     test = LooterManager(config, 'Guarding')
+    test.move_from_door_to_fm()
     test.setup_for_sell_equip_items()
     test.sell_equip_items()
     test.sell_etc_items()

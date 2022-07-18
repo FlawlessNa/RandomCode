@@ -114,14 +114,13 @@ class LooterManager(ComplexClient):
             if eval(cond2):
                 break
 
-        self.move_right_for(0.5)
 
     def move_from_fm_to_door(self):
         cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8))"""
         cond2 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_FM'), cv2.IMREAD_COLOR), threshold=0.8))"""
         cond3 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='CBD_portal1'), cv2.IMREAD_COLOR), threshold=0.8))"""
 
-        self.move_left_and_up_until(cond1)
+        self.move_up()
         time.sleep(1)
         # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
         if len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8)):
