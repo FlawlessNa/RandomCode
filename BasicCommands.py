@@ -16,7 +16,11 @@ class BasicCommands(BasicMovements):
         super().__init__(config, ign)
 
     def chat_feed_is_displayed(self):
-        if pyautogui.locateOnScreen(image='KeyImages/Feed_is_Displayed.png', region=self.client.box) is not None:
+        dim = {'width': 75,
+               'height': 50,
+               'crop_x': 600,
+               'crop_y': 715}
+        if len(find_image(self.take_screenshot(dim), cv2.imread(self.config.get(section='Misc Images', option='feed_displayed')), threshold=0.9)):
             return True
         else:
             return False

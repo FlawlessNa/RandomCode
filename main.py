@@ -12,7 +12,7 @@ from HsvFiltering import init_control_gui, get_hsv_filter_from_controls, apply_h
 import random
 
 
-user = 'Lec'
+user = 'Nass'
 config = ConfigParser()
 config.read('common_config.ini')
 
@@ -60,8 +60,8 @@ if __name__ == '__main__':
     #         cv2.destroyAllWindows()
     #         break
 
-    manager = QueueManager(config)
-
+    # manager = QueueManager(config)
+    #
     # proc1 = multiprocessing.Process(target=manager.looter)
     # proc2 = multiprocessing.Process(target=manager.bishop)
     # proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
@@ -69,28 +69,35 @@ if __name__ == '__main__':
     # proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
 
 
-    # # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
-    # # proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
-    # # proc3 = multiprocessing.Process(target=manager.mage, args=('Zushy', 'bot', 'second', ))
-    # # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
-    # # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
+    # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
+    # proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
+    # proc3 = multiprocessing.Process(target=manager.mage, args=('Zushy', 'bot', 'second', ))
+    # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
+    # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
+    #
+    # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
+    # proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
+    # proc3 = multiprocessing.Process(target=manager.mage, args=('Zushy', 'bot', 'second', ))
+    # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
+    # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
 
-    proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
-    proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
-    proc3 = multiprocessing.Process(target=manager.mage, args=('Zushy', 'bot', 'second', ))
-    proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
-    proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
+    # proc1.start()
+    # proc2.start()
+    # proc3.start()
+    # proc4.start()
+    # proc5.start()
+    #
+    # proc1.join()
+    # proc2.join()
+    # proc3.join()
+    # proc4.join()
+    # proc5.join()
 
-
-    proc1.start()
-    proc2.start()
-    proc3.start()
-    proc4.start()
-    proc5.start()
-
-    proc1.join()
-    proc2.join()
-    proc3.join()
-    proc4.join()
-    proc5.join()
+    # test = LooterManager(config, 'Guarding')
+    # while True:
+    #     img = test.take_screenshot(dim={'width': 75, 'height': 50, 'crop_x': 600, 'crop_y': 715})
+    #     cv2.imshow('test', img)
+    #     if cv2.waitKey(1000) == ord('q'):
+    #         cv2.destroyAllWindows()
+    #         break
 
