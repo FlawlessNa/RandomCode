@@ -80,6 +80,7 @@ class LooterManager(ComplexClient):
         self.toggle_mount()
         self.move_cursor_to(random.randint(100, 200), random.randint(100, 200))
         self.toggle_buddy_list()
+        time.sleep(0.5)
 
         self.move_right_and_up_until(cond1, timeout=8)
         time.sleep(1.25)
@@ -115,7 +116,6 @@ class LooterManager(ComplexClient):
             # TODO: replace the confirmation on whether the door was succesfully entered by using self.check_current_location!
             if eval(cond2):
                 break
-
 
     def move_from_fm_to_door(self):
         cond1 = """not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='FM_NPC'), cv2.IMREAD_COLOR), threshold=0.8))"""
@@ -159,34 +159,29 @@ class LooterManager(ComplexClient):
 
     def click_fm_storage(self):
         # Values are hard-coded since location is never-changing. Prevents issues as there may be characters/animations hindering the npc
-        x, y = win32gui.ClientToScreen(self.hwnd, (60, 600))
+        x, y = win32gui.ClientToScreen(self.hwnd, (60, 550))
         self.click_at(x, y)
 
     def click_fm_seller(self):
         x, y = win32gui.ClientToScreen(self.hwnd, (500, 275))
         self.click_at(x, y)
 
-    def determine_items_to_keep(self):
-        self.ensure_inventory_is_open()
-        self.ensure_inventory_is_expanded()
-
-        # Get to Equip Inventory
-        while True:
-            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_inventory'), cv2.IMREAD_COLOR), threshold=0.8)):
-                pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
-            else:
-                break
-        self.inventory_merge_and_sort()
-
-    def order_items_to_keep_on_top(self, items_positions):
-        # TODO: function that puts items to keep on top of inventory and returns the nbr of items
-        pass
-
     def store_items(self, nbr_items):
-        # TODO: function that store those items in storage
-        pass
+        self.ensure_inventory_is_open()
+        time.sleep(0.25)
+        self.toggle_inventory()
+        time.sleep(0.25)
+        self.click_fm_storage()
+        time.sleep(0.25)
+        x, y = win32gui.ClientToScreen(self.hwnd, (600, 372))
+        for i in range(nbr_items):
+            self.double_click_at(x, y)
+            pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
+            time.sleep(0.25)
 
-    def setup_for_sell_equip_items(self):
+        pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
+
+    def setup_inventory_for_selling(self):
         # When this method is called, the sell_etc_items should ALWAYS be called right afterwards
 
         self.ensure_inventory_is_open()
@@ -199,16 +194,34 @@ class LooterManager(ComplexClient):
             else:
                 break
         self.inventory_merge_and_sort()
-        self.toggle_inventory()
-
-        self.click_fm_seller()
         self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (random.randint(100, 200), random.randint(100, 200))))  # Move cursors away so as not to hide images
 
-        rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.8)
+        # Get to Equip Inventory
+        while True:
+            if not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_inventory'), cv2.IMREAD_COLOR), threshold=0.8)):
+                pyPostMessage('press', [win32con.VK_TAB, 0], self.hwnd)
+            else:
+                break
+        self.inventory_merge_and_sort()
+
+    def sell_equip_items(self, nbr_sold=0):
+
+        if nbr_sold == 0:
+            self.click_fm_seller()
+
+        self.move_cursor_to(*win32gui.ClientToScreen(self.hwnd, (random.randint(100, 200), random.randint(100, 200))))  # Move cursors away so as not to hide images
+        time.sleep(0.5)
+
+        i = 0
+        while i <= 10:
+            rect = find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Inventory Images', option='equip_tab_seller'), cv2.IMREAD_COLOR), threshold=0.8)
+            if len(rect):
+                break
+            else:
+                i += 1
         x, y = midpoint(self.hwnd, rect)
         self.click_at(x, y + 40)  # Click on first item to sell in the list, which is just slightly underneath the screenshot being detected
 
-    def sell_equip_items(self, nbr_sold=0):
         time.sleep(1)
         haystack = self.take_screenshot()
         target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.8)

@@ -1,5 +1,6 @@
 from LooterManager import LooterManager
 from MageManager import MageManager
+from InventoryManager import InventoryManager
 import multiprocessing
 import time
 import random
@@ -37,7 +38,8 @@ class QueueManager:
     NEED_DOOR = 26
     SET_CHANNELS_1 = 27
     SET_CHANNELS_2 = 28
-
+    SORT_ITEMS_TO_KEEP = 29
+    STORE_ITEMS_TO_KEEP = 30
 
     def __init__(self, config):
         self.config = config
@@ -52,6 +54,7 @@ class QueueManager:
     def looter(self, ign='Guarding'):
 
         looter = LooterManager(self.config, ign)
+        inventory = InventoryManager(looter)
         looter.ensure_mount_is_used()
         time.sleep(1.75)
         looter.toggle_mount()
@@ -69,6 +72,7 @@ class QueueManager:
         time.sleep(2)  # leaves time for all others to set up properly
         step = 0
         nbr_sold = 0
+        nbr_to_keep = 0
 
         while True:
 
@@ -187,7 +191,22 @@ class QueueManager:
 
             elif step == self.SETUP_TO_SELL:
                 print('step executing: {}'.format(nameof(self.SETUP_TO_SELL)))
-                looter.setup_for_sell_equip_items()
+                looter.setup_inventory_for_selling()
+                self.q.put(self.SORT_ITEMS_TO_KEEP)
+
+            elif step == self.SORT_ITEMS_TO_KEEP:
+                print('step executing: {}'.format(nameof(self.SORT_ITEMS_TO_KEEP)))
+                nbr_to_keep = inventory.loop_through_all()
+                if nbr_to_keep > 0:
+                    self.q.put(self.STORE_ITEMS_TO_KEEP)
+                else:
+                    print('No items to store')
+                    self.q.put(self.SELL_EQUIP_ITEM)
+
+            elif step == self.STORE_ITEMS_TO_KEEP:
+                print('step executing: {}'.format(nameof(self.STORE_ITEMS_TO_KEEP)))
+                looter.store_items(nbr_to_keep)
+                nbr_to_keep = 0
                 self.q.put(self.SELL_EQUIP_ITEM)
 
             elif step == self.SELL_EQUIP_ITEM:

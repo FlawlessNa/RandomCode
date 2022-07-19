@@ -56,7 +56,11 @@ class BasicMovements(BaseClient):
         while True:
             if eval(expression):
                 pydirectinput.keyUp('up')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('up')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('up')
@@ -80,7 +84,11 @@ class BasicMovements(BaseClient):
         while True:
             if eval(expression):
                 pydirectinput.keyUp('down')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('down')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('down')
@@ -105,7 +113,11 @@ class BasicMovements(BaseClient):
         while True:
             if eval(expression):
                 pydirectinput.keyUp('right')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('right')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('right')
@@ -135,7 +147,11 @@ class BasicMovements(BaseClient):
             pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
             if eval(expression):
                 pydirectinput.keyUp('right')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('right')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('right')
@@ -168,7 +184,12 @@ class BasicMovements(BaseClient):
             if eval(expression):
                 pydirectinput.keyUp('right')
                 pydirectinput.keyUp('down')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('right')
+                    pydirectinput.keyDown('down')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('down')
@@ -194,7 +215,11 @@ class BasicMovements(BaseClient):
         while True:
             if eval(expression):
                 pydirectinput.keyUp('left')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('left')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('left')
@@ -224,7 +249,11 @@ class BasicMovements(BaseClient):
             pyPostMessage('press', [win32con.VK_UP, 1], self.hwnd)
             if eval(expression):
                 pydirectinput.keyUp('left')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('left')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('left')
@@ -257,7 +286,12 @@ class BasicMovements(BaseClient):
             if eval(expression):
                 pydirectinput.keyUp('left')
                 pydirectinput.keyUp('down')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('left')
+                    pydirectinput.keyDown('down')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('down')
@@ -325,7 +359,11 @@ class BasicMovements(BaseClient):
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
             if eval(expression):
                 pydirectinput.keyUp('right')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('right')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('right')
@@ -340,7 +378,11 @@ class BasicMovements(BaseClient):
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
             if eval(expression):
                 pydirectinput.keyUp('left')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('left')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('left')
@@ -348,14 +390,18 @@ class BasicMovements(BaseClient):
 
     def jump_down_until(self, expression, timeout=None):
         self.activate()
-        pydirectinput.keyDown(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
+        pydirectinput.keyDown('down')
         beginning = time.time()
 
         while True:
             pydirectinput.press('altleft')
             if eval(expression):
                 pydirectinput.keyUp('down')
-                break
+                time.sleep(0.25)
+                if eval(expression):
+                    break
+                else:
+                    pydirectinput.keyDown('down')
             elif timeout:
                 if time.time() > beginning + timeout:
                     pydirectinput.keyUp('down')

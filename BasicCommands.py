@@ -54,7 +54,6 @@ class BasicCommands(BasicMovements):
         pyPostMessage('press', key_config, self.hwnd)
 
     def click(self):
-        self.activate()
         pydirectinput.click()
 
     def feed_pet(self):
@@ -72,18 +71,17 @@ class BasicCommands(BasicMovements):
         pydirectinput.click(int(x), int(y))
 
     def double_click_at(self, x, y):
-        self.activate()
         pydirectinput.doubleClick(int(x), int(y))
 
     def move_cursor_to(self, x, y):
+        # x and y should be screen coordinates
         pydirectinput.moveTo(int(x), int(y))
 
     def drag_to(self, x, y):
+        # x and y should be screen coordinates
         pydirectinput.mouseDown()
         pydirectinput.moveTo(int(x), int(y))
         pydirectinput.mouseUp()
-        x, y = win32gui.ClientToScreen(self.hwnd, (10, 10))
-        pydirectinput.moveTo(x, y)
 
     def check_pots_left(self):
         pass

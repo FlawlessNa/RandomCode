@@ -5,6 +5,7 @@ from LooterManager import LooterManager
 from ImageDetection import find_image, midpoint
 from QueueManagement import QueueManager
 from MageManager import MageManager
+from InventoryManager import InventoryManager
 import multiprocessing
 import psutil
 import time
@@ -24,11 +25,12 @@ config.read(config.get(section='Login Credentials', option='path'))
 
 if __name__ == '__main__':
 
-    # test = MageManager(config, 'Goldmine1', 'bot')
+    # test = MageManager(config, 'LegalizeIt', 'bot')
+    # test = LooterManager(config, 'Guarding')
     # init_control_gui()
     # test.ensure_inventory_is_open()
     # haystack = test.take_screenshot()
-    # needle = cv2.imread(config.get(section='Inventory Images', option='red_pirate_top'), cv2.IMREAD_COLOR)
+    # needle = cv2.imread(config.get(section='Inventory Images', option='craven'), cv2.IMREAD_COLOR)
     # rects = find_image(haystack, needle)
     # filter = HsvFilter(hMin=0,
     #                    sMin=0,
@@ -47,16 +49,16 @@ if __name__ == '__main__':
     #     click_x, click_y = midpoint(test.hwnd, rect)  # Do not use the midpoint function to crop screenshots - the midpoint returns location on the actual screen, not on the screenshot
     #     test.move_cursor_to(click_x, click_y)
     #     dimensions = {
-    #         'width': 30,
-    #         'height': 15,
-    #         'crop_x': int(x + w/2 + 40),
-    #         'crop_y': int(y + h/2 + test.titlebar_pixels) + 200
+    #         'width': 50,
+    #         'height': 45,
+    #         'crop_x': int(x + w/2 + 110),
+    #         'crop_y': int(y + h/2 + test.titlebar_pixels) + 210
     #     }
     #     image_test = test.take_screenshot(dim=dimensions)
     #     processed = apply_hsv_filter(image_test, filter)
-    #     cv2.imwrite('KeyImages/Inventory/Stats/RedPirateTop/image' + str(i) + '.png', processed)
+    #     # cv2.imwrite('KeyImages/Inventory/Stats/RedPirateTop/image' + str(i) + '.png', processed)
     #     cv2.imshow('test', processed)
-    #     if cv2.waitKey(100) == ord('q'):
+    #     if cv2.waitKey(3000) == ord('q'):
     #         cv2.destroyAllWindows()
     #         break
 
@@ -81,6 +83,7 @@ if __name__ == '__main__':
     # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
     # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
 
+    print('time started {}'.format(time.strftime('%H:%M:%S', time.localtime())))
     proc1.start()
     proc2.start()
     proc3.start()
