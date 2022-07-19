@@ -1,4 +1,5 @@
 import win32gui
+import win32con
 from configparser import ConfigParser
 from LooterManager import LooterManager
 from ImageDetection import find_image, midpoint
@@ -10,7 +11,6 @@ import time
 import cv2
 from HsvFiltering import init_control_gui, get_hsv_filter_from_controls, apply_hsv_filter, HsvFilter
 import random
-
 
 user = 'Nass'
 config = ConfigParser()

@@ -209,6 +209,7 @@ class LooterManager(ComplexClient):
         self.click_at(x, y + 40)  # Click on first item to sell in the list, which is just slightly underneath the screenshot being detected
 
     def sell_equip_items(self, nbr_sold=0):
+        time.sleep(1)
         haystack = self.take_screenshot()
         target = find_image(haystack, cv2.imread(self.config.get(section='Inventory Images', option='sell_item'), cv2.IMREAD_COLOR), threshold=0.8)
         x, y = midpoint(self.hwnd, target)
