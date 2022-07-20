@@ -284,7 +284,7 @@ class LooterManager(ComplexClient):
 
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
         self.move_right_until(expression=cond, timeout=5)
-        self.move_right_for(0.755)
+        self.move_right_for(0.4)
 
 
     def map_sequence_4(self):
@@ -300,8 +300,8 @@ class LooterManager(ComplexClient):
 
     def map_sequence_6(self):
 
-        self.move_left_for(1)
-        time.sleep(1.5)
+        self.move_left_for(0.5)
+        time.sleep(1.25)
         self.jump_right()
         time.sleep(0.75)
 
