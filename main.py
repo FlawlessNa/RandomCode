@@ -13,7 +13,7 @@ import cv2
 from HsvFiltering import init_control_gui, get_hsv_filter_from_controls, apply_hsv_filter, HsvFilter
 import random
 
-user = 'Nass'
+user = 'Lec'
 config = ConfigParser()
 config.read('common_config.ini')
 
@@ -64,11 +64,14 @@ if __name__ == '__main__':
 
     manager = QueueManager(config)
 
-    proc1 = multiprocessing.Process(target=manager.looter)
-    proc2 = multiprocessing.Process(target=manager.bishop)
-    proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
-    proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
-    proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
+    test = LooterManager(config, 'MidN')
+    #test.set_current_channel()
+
+    # proc1 = multiprocessing.Process(target=manager.looter)
+    # proc2 = multiprocessing.Process(target=manager.bishop)
+    # proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
+    # proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
+    # proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
 
 
     # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
@@ -82,19 +85,19 @@ if __name__ == '__main__':
     # proc3 = multiprocessing.Process(target=manager.mage, args=('Zushy', 'bot', 'second', ))
     # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
     # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
-
-    print('time started {}'.format(time.strftime('%H:%M:%S', time.localtime())))
-    proc1.start()
-    proc2.start()
-    proc3.start()
-    proc4.start()
-    proc5.start()
-
-    proc1.join()
-    proc2.join()
-    proc3.join()
-    proc4.join()
-    proc5.join()
+    #
+    # print('time started {}'.format(time.strftime('%H:%M:%S', time.localtime())))
+    # proc1.start()
+    # proc2.start()
+    # proc3.start()
+    # proc4.start()
+    # proc5.start()
+    #
+    # proc1.join()
+    # proc2.join()
+    # proc3.join()
+    # proc4.join()
+    # proc5.join()
 
 
 

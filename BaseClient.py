@@ -146,17 +146,20 @@ class BaseClient:
     def set_current_channel(self, channel=None):
 
         if channel is None:
+            ImageDetectionThreshold = 0.99
+            loadColorImage = cv2.IMREAD_COLOR
+            gameMenuTitleImage = cv2.imread(self.config.get(section='Login Images', option='game_menu'), loadColorImage)
 
             while not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Login Images', option='game_menu'), cv2.IMREAD_COLOR), threshold=0.99)):
                 pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
                 time.sleep(0.2)
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
-            nbr_changes = 0
-            while len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Login Images', option='channel_1'), cv2.IMREAD_COLOR), threshold=0.995)) == 0:
-                nbr_changes += 1
-                pyPostMessage('press', [win32con.VK_RIGHT, 1], self.hwnd)
-            pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
-            self.current_channel = 1 if nbr_changes == 0 else 1 - nbr_changes + 20
+            haystack = self.take_screenshot()
+            listOfChannels = eval(self.config.get(section='Login Images', option='channels'))
+
+            for channel in listOfChannels:
+                if find_image(haystack, channel, cv2.IMREAD_COLOR, threshold=0.99):
+                    print(channel)
         else:
             self.current_channel = channel
