@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from HsvFiltering import HsvFilter, apply_hsv_filter
 from ImageDetection import find_image, midpoint
 import time
+import random
 
 
 class InventoryManager:
@@ -36,23 +37,25 @@ class InventoryManager:
         inv_offsets_y = [self.inventory_title_midpoint_offset_y + self.box_y_dim * (i // 4 - 6 * (i // 24)) for i in range(96)]
         self.inventory_offsets = pd.DataFrame(data={'x': inv_offsets_x, 'y': inv_offsets_y}, index=range(96))
 
-
         self.craven = {
             'image': cv2.imread(self.client.config.get(section='Inventory Images', option='craven'), cv2.IMREAD_COLOR),
             'meaningful stats': ['atk'],
             'box': {'width': 30,
-                           'height': 20,
-                           'crop_x': 108,
-                           'crop_y': 238},
-            'stats path': 'KeyImages/Inventory/Stats/RedCraven/',
+                    'height': 20,
+                    'crop_x': 108,
+                    'crop_y': 238},
+            'stats path': 'KeyImages/Inventory/Stats/RedCraven/'
         }
-        self.craven['frame'] = pd.DataFrame(data=None, index= range(41, 57), columns=self.craven['meaningful stats'])
 
-        self.blood_dagger = cv2.imread(self.client.config.get(section='Inventory Images', option='blood_dagger'), cv2.IMREAD_COLOR)
-        self.blood_dagger_box = {'width': 30,
-                                 'height': 15,
-                                 'crop_x': 110,
-                                 'crop_y': 200}
+        self.blood_dagger = {
+            'image': cv2.imread(self.client.config.get(section='Inventory Images', option='blood_dagger'), cv2.IMREAD_COLOR),
+            'meaningful stats': ['atk'],
+            'box': {'width': 29,
+                    'height': 15,
+                    'crop_x': 110,
+                    'crop_y': 230},
+            'stats path': 'KeyImages/Inventory/Stats/BloodDagger/'
+        }
 
         self.red_pirate_pants = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR)
         self.red_pirate_pants_dexbox = {'width': 30,
@@ -74,16 +77,19 @@ class InventoryManager:
                                       'crop_x': 40,
                                       'crop_y': 200}
 
-        self.white_pioneer = cv2.imread(self.client.config.get(section='Inventory Images', option='white_pioneer'), cv2.IMREAD_COLOR)
-        self.white_pioneer_strbox = {'width': 30,
-                                     'height': 15,
-                                     'crop_x': 40,
-                                     'crop_y': 185}
-        self.white_pioneer_dexbox = {'width': 30,
-                                     'height': 15,
-                                     'crop_x': 40,
-                                     'crop_y': 200}
-        self.all_items = [self.craven]
+        # TODO: still need to test 12-7, 12-6, 11-8!
+        self.white_pioneer = {
+            'image': cv2.imread(self.client.config.get(section='Inventory Images', option='white_pioneer'), cv2.IMREAD_COLOR),
+            'meaningful stats': ['str', 'dex'],
+            'box': {'width': 26,
+                    'height': 26,
+                    'crop_x': 44,
+                    'crop_y': 217},
+            'stats path': 'KeyImages/Inventory/Stats/WhitePioneer'
+        }
+
+
+        self.all_items = [self.craven, self.blood_dagger, self.white_pioneer]
 
     def loop_through_all(self):
         nbr_to_keep = 0
@@ -96,10 +102,11 @@ class InventoryManager:
             self.client.move_cursor_to(x, y)
             target_x, target_y = win32gui.ClientToScreen(self.client.hwnd, (115, 225))
             self.client.drag_to(target_x, target_y)
-            self.client.move_cursor_to(50, 50)
+            rand_x, rand_y = win32gui.ClientToScreen(self.client.hwnd, (random.randint(10, 45), random.randint(10, 45)))
+            self.client.move_cursor_to(rand_x, rand_y)
 
         for i in self.all_items:
-            nbr_to_keep += self.loop_through_items_in_inventory(i, nbr_to_keep)
+            nbr_to_keep = self.loop_through_items_in_inventory(i, nbr_to_keep)
 
         print('Successfully sorted {} items'.format(nbr_to_keep))
         self.total_item_kept += nbr_to_keep
@@ -123,16 +130,14 @@ class InventoryManager:
                 self.client.move_cursor_to(screen_x, screen_y)
                 time.sleep(0.1)
 
-                if len(item['meaningful stats']) == 1:
-                    dim = item['box'].copy()
-                    dim['crop_x'] += int(x)
-                    dim['crop_y'] += int(y)
+                dim = item['box'].copy()
+                dim['crop_x'] += int(x)
+                dim['crop_y'] += int(y)
 
-                    stat_img = apply_hsv_filter(self.client.take_screenshot(dim=dim), self.filter)
-                    item_kept += self.loop_through_stats(item, stat_img, item_kept)
-
-                elif len(item['meaningful stats']) == 2:
-                    pass
+                stat_img = apply_hsv_filter(self.client.take_screenshot(dim=dim), self.filter)
+                # cv2.imshow('test', stat_img)
+                # cv2.waitKey(10000)
+                item_kept += self.loop_through_stats(item, stat_img, item_kept)
 
         return item_kept
 
