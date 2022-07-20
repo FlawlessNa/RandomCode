@@ -65,7 +65,6 @@ if __name__ == '__main__':
     manager = QueueManager(config)
 
     test = LooterManager(config, 'MidN')
-    #test.set_current_channel()
 
     # proc1 = multiprocessing.Process(target=manager.looter)
     # proc2 = multiprocessing.Process(target=manager.bishop)

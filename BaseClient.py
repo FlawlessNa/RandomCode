@@ -47,9 +47,11 @@ class BaseClient:
         # Also Interesting Note: using os.system would also cause the client to run, and the client is automatically killed once the execution of the program ends!
 
         if eval(self.config.get(section='Kill Clients After Execution', option='value')):
-            os.system(eval(self.config.get(section='Client Path', option='path'))[self.config.get(section='RESOLUTIONS', option=char_type)])
+            os.system(eval(self.config.get(section='Client Path', option='path'))[
+                          self.config.get(section='RESOLUTIONS', option=char_type)])
         else:
-            os.startfile(eval(self.config.get(section='Client Path', option='path'))[self.config.get(section='RESOLUTIONS', option=char_type)])
+            os.startfile(eval(self.config.get(section='Client Path', option='path'))[
+                             self.config.get(section='RESOLUTIONS', option=char_type)])
 
         # DO NOT change focus after the client has been opened, otherwise the wrong handles will be retrieved.
         time.sleep(10)
@@ -74,7 +76,8 @@ class BaseClient:
         x, y = pyautogui.locateCenterOnScreen(self.config.get(section='Login Images', option='channel_to_click'))
         pyautogui.doubleClick(x, y + 5)
         time.sleep(1)
-        nbr_move_towards_right = eval(self.config.get(section='Login Character Position', option='position_dict'))[self.ign] - 1
+        nbr_move_towards_right = eval(self.config.get(section='Login Character Position', option='position_dict'))[
+                                     self.ign] - 1
 
         for i in range(5):
             # This is to ensure that we always start character selection from the far left
@@ -146,11 +149,11 @@ class BaseClient:
     def set_current_channel(self, channel=None):
 
         if channel is None:
-            ImageDetectionThreshold = 0.99
+            imageDetectionThreshhold = 0.99
             loadColorImage = cv2.IMREAD_COLOR
             gameMenuTitleImage = cv2.imread(self.config.get(section='Login Images', option='game_menu'), loadColorImage)
 
-            while not len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Login Images', option='game_menu'), cv2.IMREAD_COLOR), threshold=0.99)):
+            while not len(find_image(self.take_screenshot(), gameMenuTitleImage, threshold=imageDetectionThreshhold)):
                 pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
                 time.sleep(0.2)
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
@@ -158,8 +161,10 @@ class BaseClient:
             haystack = self.take_screenshot()
             listOfChannels = eval(self.config.get(section='Login Images', option='channels'))
 
-            for channel in listOfChannels:
-                if find_image(haystack, channel, cv2.IMREAD_COLOR, threshold=0.99):
-                    print(channel)
+            for index, channel in enumerate(listOfChannels):
+                channelScreenShot = cv2.imread(channel, loadColorImage)
+                if len(find_image(haystack, channelScreenShot, threshold=imageDetectionThreshhold)):
+                    self.current_channel = index + 1
+                    break
         else:
             self.current_channel = channel
