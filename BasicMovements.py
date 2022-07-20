@@ -334,6 +334,11 @@ class BasicMovements(BaseClient):
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('right')
 
+    def jump_right_by(self, distance):
+        # 1 sec is approximately equal to 200 pixel when character has 140% speed. That's actually a bad estimate because the screen is also moving the pixels around
+        time = distance / ((200 / 1.4) * self.get_char_speed())
+        self.jump_right_for(time)
+
     def jump_left_for(self, duration):
         self.activate()
         now = time.time()
@@ -341,6 +346,11 @@ class BasicMovements(BaseClient):
         while time.time() - now < duration:
             pydirectinput.press(self.config.get(section='KEYBINDS - Common - pyautogui', option='jumpkey'))
         pydirectinput.keyUp('left')
+
+    def jump_left_by(self, distance):
+        # 1 sec is approximately equal to 200 pixel when character has 140% speed. That's actually a bad estimate because the screen is also moving the pixels around
+        time = distance / ((200 / 1.4) * self.get_char_speed())
+        self.jump_left_for(time)
 
     def jump_down_for(self, duration):
         self.activate()
