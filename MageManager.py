@@ -30,9 +30,9 @@ class MageManager(ComplexClient):
             self.distance_with_right_target = 425
         elif self.position == 'top':
             self.left_positioning_target = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
-            self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)
+            self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='top_floor_right_target'), cv2.IMREAD_COLOR)
             self.distance_with_left_target = 500
-            self.distance_with_right_target = 750
+            self.distance_with_right_target = 550
 
     def cast_ult(self):
 
@@ -91,10 +91,23 @@ class MageManager(ComplexClient):
     def reposition_needed(self):
 
         haystack = self.take_screenshot()
+        curr_pos = self.find_self()
         rects_left = find_image(haystack, self.left_positioning_target)
         rects_right = find_image(haystack, self.right_positioning_target)
 
-        if len(rects_left) or len(rects_right):
+        if len(rects_left) and len(curr_pos):
+            self_x, self_y = midpoint(self.hwnd, curr_pos)
+            target_x, target_y = midpoint(self.hwnd, rects_left)
+            if self_x - target_x < self.distance_with_left_target:
+                return True
+
+        elif len(rects_right) and len(curr_pos):
+            self_x, self_y = midpoint(self.hwnd, curr_pos)
+            target_x, target_y = midpoint(self.hwnd, rects_right)
+            if target_x - self_x < self.distance_with_right_target:
+                return True
+
+        elif not len(curr_pos):
             return True
 
     def reposition(self):
@@ -104,28 +117,38 @@ class MageManager(ComplexClient):
 
             haystack = self.take_screenshot()
             rects_left = find_image(haystack, self.left_positioning_target, threshold=0.8)
-            rects_right = find_image(haystack, self.right_positioning_target, threshold=0.9)
+            rects_right = find_image(haystack, self.right_positioning_target, threshold=0.8)
 
             if len(rects_left):
                 target_x, target_y = midpoint(self.hwnd, rects_left)
                 print('{} distance with left target: {}'.format(self.ign, abs(char_x - target_x)))
-                if char_x > target_x:
-                    self.move_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
+                if self.position == 'top':
+                    if char_x > target_x:
+                        self.jump_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
+                    else:
+                        self.jump_right_by(self.distance_with_left_target + abs(char_x - target_x))
                 else:
-                    self.move_right_by(self.distance_with_left_target + abs(char_x - target_x))
+                    if char_x > target_x:
+                        self.move_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
+                    else:
+                        self.move_right_by(self.distance_with_left_target + abs(char_x - target_x))
 
             elif len(rects_right):
                 target_x, target_y = midpoint(self.hwnd, rects_right)
                 print('{} distance with right target: {}'.format(self.ign, abs(char_x - target_x)))
 
                 # safeguard to make sure character is still on the top-most platform
-                if char_x - target_x > - 175 and self.position == 'top':
+                if char_x - target_x > - 100 and self.position == 'top':
                     self.teleport_left()
+                    # Reduce the distance by approx 250 to account for the teleport
+                    self.move_left_by(max(0, self.distance_with_right_target - 250 - abs(char_x - target_x)))
 
-                if char_x < target_x:
+                elif char_x < target_x:
                     self.move_left_by(max(0, self.distance_with_right_target - abs(char_x - target_x)))
                 else:
                     self.move_left_by(self.distance_with_right_target + abs(char_x - target_x))
+        else:
+            self.teleport_right()
 
     def move_to_car(self):
         loop = True

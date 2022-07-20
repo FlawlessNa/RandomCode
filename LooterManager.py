@@ -284,6 +284,8 @@ class LooterManager(ComplexClient):
 
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Map Images', option='left_ladder'), cv2.IMREAD_COLOR)))"""
         self.move_right_until(expression=cond, timeout=5)
+        self.move_right_for(0.755)
+
 
     def map_sequence_4(self):
 
@@ -298,7 +300,7 @@ class LooterManager(ComplexClient):
 
     def map_sequence_6(self):
 
-        self.move_left_for(0.75)
+        self.move_left_for(1)
         time.sleep(1.5)
         self.jump_right()
         time.sleep(0.75)
@@ -308,13 +310,16 @@ class LooterManager(ComplexClient):
         self.ensure_mount_is_used()
         time.sleep(0.75)
         self.jump_right()
+        time.sleep(0.75)
         self.move_right_for(1)
+        self.move_left_for(1)
+        self.jump_right()
         time.sleep(1)
 
     def map_sequence_8(self):
 
         cond = """len(find_image(self.take_screenshot(), cv2.imread(self.config.get(section='Character Images', option='looter_backhead'), cv2.IMREAD_COLOR), threshold=0.8))"""
-        self.move_right_and_down_until(expression=cond, timeout=6)
+        self.move_right_and_down_until(expression=cond, timeout=9)
         self.move_down_for(1.5)
 
     def map_sequence_9(self):

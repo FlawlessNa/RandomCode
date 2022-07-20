@@ -25,6 +25,33 @@ config.read(config.get(section='Login Credentials', option='path'))
 
 if __name__ == '__main__':
 
+    # test = MageManager(config, 'LegalizeIt', 'top')
+    #
+    # while True:
+    #     if test.reposition_needed():
+    #         print('reposition needed')
+    #         test.reposition()
+    #     ult_cast = test.farm()
+    #     if ult_cast:
+    #         time.sleep(3)
+
+        # haystack = test.take_screenshot()
+        # curr_pos = test.find_self()
+        # rects_left = find_image(haystack, test.left_positioning_target)
+        # rects_right = find_image(haystack, test.right_positioning_target)
+        #
+        # if len(rects_left) and len(curr_pos):
+        #     self_x, self_y = midpoint(test.hwnd, curr_pos)
+        #     target_x, target_y = midpoint(test.hwnd, rects_left)
+        #     print('Horizontal distance with left target: {}'.format(self_x - target_x))
+        #
+        # if len(rects_right) and len(curr_pos):
+        #     self_x, self_y = midpoint(test.hwnd, curr_pos)
+        #     target_x, target_y = midpoint(test.hwnd, rects_right)
+        #     print('Horizontal distance with right target: {}'.format(self_x - target_x))
+        #
+        # time.sleep(1)
+
     # test = MageManager(config, 'LegalizeIt', 'bot')
     # test = LooterManager(config, 'Guarding')
     # init_control_gui()
