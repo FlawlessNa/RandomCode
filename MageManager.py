@@ -85,6 +85,8 @@ class MageManager(ComplexClient):
         pyPostMessage('press', key_config, self.hwnd)
         time.sleep(0.2)
         pyPostMessage('press', key_config, self.hwnd)
+        time.sleep(0.2)
+        pyPostMessage('press', key_config, self.hwnd)
 
     def reposition_needed(self):
 
