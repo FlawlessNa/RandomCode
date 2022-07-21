@@ -190,7 +190,7 @@ class MageManager(ComplexClient):
             if curr_target_dist_with_client > self.left_target_threshold:
                 if self.position == 'top':
                     self.teleport_right()
-                    self.jump_right_by(max(0, curr_target_dist_with_client - self.desired_left_target_dist))
+                    self.jump_right_by(max(0, curr_target_dist_with_client - self.desired_left_target_dist - 100))  # 100 to roughly account for the teleport
                 elif self.position == 'bot':
                     self.teleport_right()
                     self.move_right_by(max(0, curr_target_dist_with_client - self.desired_left_target_dist))
