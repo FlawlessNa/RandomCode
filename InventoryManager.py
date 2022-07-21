@@ -98,7 +98,6 @@ class InventoryManager:
             'stats path': 'KeyImages/Inventory/Stats/Sparta/'
         }
 
-
         self.all_items = [self.craven, self.blood_dagger, self.sparta, self.red_pirate_pants, self.white_pioneer, self.red_pirate_top]
 
     def loop_through_all(self):

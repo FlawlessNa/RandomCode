@@ -28,11 +28,11 @@ if __name__ == '__main__':
 
     manager = QueueManager(config)
 
-    # proc1 = multiprocessing.Process(target=manager.looter)
-    # proc2 = multiprocessing.Process(target=manager.bishop)
-    # proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
-    # proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
-    # proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
+    proc1 = multiprocessing.Process(target=manager.looter)
+    proc2 = multiprocessing.Process(target=manager.bishop)
+    proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
+    proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
+    proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
 
     # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
     # proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
