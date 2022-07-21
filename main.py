@@ -13,7 +13,7 @@ import cv2
 from HsvFiltering import init_control_gui, get_hsv_filter_from_controls, apply_hsv_filter, HsvFilter
 import random
 
-user = 'Lec'
+user = 'Nass'
 config = ConfigParser()
 config.read('common_config.ini')
 
@@ -64,14 +64,11 @@ if __name__ == '__main__':
 
     manager = QueueManager(config)
 
-    # test = LooterManager(config, 'MidN')
-
-    # proc1 = multiprocessing.Process(target=manager.looter)
-    # proc2 = multiprocessing.Process(target=manager.bishop)
-    # proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
-    # proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
-    # proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
-
+    proc1 = multiprocessing.Process(target=manager.looter)
+    proc2 = multiprocessing.Process(target=manager.bishop)
+    proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
+    proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
+    proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
 
     # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
     # proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
@@ -79,12 +76,6 @@ if __name__ == '__main__':
     # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
     # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
     #
-    proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
-    proc2 = multiprocessing.Process(target=manager.bishop, args=('GriZ', 'bot'))
-    proc3 = multiprocessing.Process(target=manager.mage, args=('Zushy', 'bot', 'second', ))
-    proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
-    proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
-
     print('time started {}'.format(time.strftime('%H:%M:%S', time.localtime())))
     proc1.start()
     proc2.start()
