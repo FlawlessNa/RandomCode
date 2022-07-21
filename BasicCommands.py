@@ -73,10 +73,6 @@ class BasicCommands(BasicMovements):
     def double_click_at(self, x, y):
         pydirectinput.doubleClick(int(x), int(y))
 
-    def move_cursor_to(self, x, y):
-        # x and y should be screen coordinates
-        pydirectinput.moveTo(int(x), int(y))
-
     def drag_to(self, x, y):
         # x and y should be screen coordinates
         pydirectinput.mouseDown()

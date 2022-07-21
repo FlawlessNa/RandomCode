@@ -1,5 +1,7 @@
 import os
 import time
+
+import pydirectinput
 import win32gui
 import win32con
 import pyautogui
@@ -158,6 +160,11 @@ class BaseClient:
                 time.sleep(0.2)
             pyPostMessage('press', [win32con.VK_RETURN, 0], self.hwnd)
 
+            # Bottom Left corner
+            x, y = win32gui.ClientToScreen(self.hwnd, (int(15), int(self.client.height - 50)))
+            self.move_cursor_to(x,y)
+            time.sleep(0.1)
+
             haystack = self.take_screenshot()
             listOfChannels = eval(self.config.get(section='Login Images', option='channels'))
 
@@ -165,6 +172,11 @@ class BaseClient:
                 channelScreenShot = cv2.imread(channel, loadColorImage)
                 if len(find_image(haystack, channelScreenShot, threshold=imageDetectionThreshhold)):
                     self.current_channel = index + 1
+                    pyPostMessage('press', [win32con.VK_ESCAPE, 0], self.hwnd)
                     break
         else:
             self.current_channel = channel
+
+    def move_cursor_to(self, x, y):
+        # x and y should be screen coordinates
+        pydirectinput.moveTo(int(x), int(y))
