@@ -96,7 +96,7 @@ class QueueManager:
                     pass
 
                 print('channel list completed: {}'.format(self.channels[:]))
-                self.q.put(self.AFTER_CC3)
+                self.q.put(self.AFTER_CC)
 
             elif step == self.MAP_SEQUENCE_1:
                 print('step executing: {}'.format(nameof(self.MAP_SEQUENCE_1)))

@@ -14,8 +14,13 @@ class MageManager(ComplexClient):
         super().__init__(config, ign)
         self.left_positioning_target = None
         self.right_positioning_target = None
-        self.distance_with_left_target = None
-        self.distance_with_right_target = None
+
+        self.desired_left_target_dist = None
+        self.left_target_threshold = None
+
+        self.desired_right_target_dist = None
+        self.right_target_threshold = None
+
         self.position = position
         self.logo = eval(self.config.get(section='IGN Images', option='mage_logo'))[ign]
 
@@ -26,13 +31,22 @@ class MageManager(ComplexClient):
         if self.position == 'bot':
             self.left_positioning_target = cv2.imread(self.config.get(section='Map Images', option='above_car'), cv2.IMREAD_COLOR)
             self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='right_ladder'), cv2.IMREAD_COLOR)
-            self.distance_with_left_target = 450
-            self.distance_with_right_target = 425
+
+            self.desired_left_target_dist = 100
+            self.left_target_threshold = 75
+
+            self.desired_right_target_dist = -50
+            self.right_target_threshold = 150
+
         elif self.position == 'top':
             self.left_positioning_target = cv2.imread(self.config.get(section='Map Images', option='target_sequence_2'), cv2.IMREAD_COLOR)
             self.right_positioning_target = cv2.imread(self.config.get(section='Map Images', option='top_floor_right_target'), cv2.IMREAD_COLOR)
-            self.distance_with_left_target = 500
-            self.distance_with_right_target = 550
+
+            self.desired_left_target_dist = 50
+            self.left_target_threshold = 200
+
+            self.desired_right_target_dist = -50
+            self.right_target_threshold = 150
 
     def cast_ult(self):
 
@@ -116,50 +130,78 @@ class MageManager(ComplexClient):
 
         if len(rects_left):
             target_x, target_y = midpoint(self.hwnd, rects_left)
-            if self.client.left - target_x > 200:
-                print('reposition needed')
+            if target_x - self.client.left > self.left_target_threshold:
+                return True
 
-
+        elif len(rects_right):
+            target_x, target_y = midpoint(self.hwnd, rects_right)
+            if self.client.right - target_x > self.right_target_threshold:
+                return True
 
     def reposition(self):
-        char_pos = self.find_self()
-        if len(char_pos):
-            char_x, char_y = midpoint(self.hwnd, char_pos)
+        # char_pos = self.find_self()
+        # if len(char_pos):
+        #     char_x, char_y = midpoint(self.hwnd, char_pos)
+        #
+        #     haystack = self.take_screenshot()
+        #     rects_left = find_image(haystack, self.left_positioning_target, threshold=0.8)
+        #     rects_right = find_image(haystack, self.right_positioning_target, threshold=0.8)
+        #
+        #     if len(rects_left):
+        #         target_x, target_y = midpoint(self.hwnd, rects_left)
+        #         print('{} distance with left target: {}'.format(self.ign, abs(char_x - target_x)))
+        #         if self.position == 'top':
+        #             if char_x > target_x:
+        #                 self.jump_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
+        #             else:
+        #                 self.jump_right_by(self.distance_with_left_target + abs(char_x - target_x))
+        #         else:
+        #             if char_x > target_x:
+        #                 self.move_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
+        #             else:
+        #                 self.move_right_by(self.distance_with_left_target + abs(char_x - target_x))
+        #
+        #     elif len(rects_right):
+        #         target_x, target_y = midpoint(self.hwnd, rects_right)
+        #         print('{} distance with right target: {}'.format(self.ign, abs(char_x - target_x)))
+        #
+        #         # safeguard to make sure character is still on the top-most platform
+        #         if char_x - target_x > - 100 and self.position == 'top':
+        #             self.teleport_left()
+        #             # Reduce the distance by approx 250 to account for the teleport
+        #             self.move_left_by(max(0, self.distance_with_right_target - 250 - abs(char_x - target_x)))
+        #
+        #         elif char_x < target_x:
+        #             self.move_left_by(max(0, self.distance_with_right_target - abs(char_x - target_x)))
+        #         else:
+        #             self.move_left_by(self.distance_with_right_target + abs(char_x - target_x))
+        # else:
+        #     self.teleport_right()
 
-            haystack = self.take_screenshot()
-            rects_left = find_image(haystack, self.left_positioning_target, threshold=0.8)
-            rects_right = find_image(haystack, self.right_positioning_target, threshold=0.8)
+        haystack = self.take_screenshot()
+        rects_left = find_image(haystack, self.left_positioning_target, threshold=0.8)
+        rects_right = find_image(haystack, self.right_positioning_target, threshold=0.8)
 
-            if len(rects_left):
-                target_x, target_y = midpoint(self.hwnd, rects_left)
-                print('{} distance with left target: {}'.format(self.ign, abs(char_x - target_x)))
+        if len(rects_left):
+            target_x, target_y = midpoint(self.hwnd, rects_left)
+            curr_target_dist_with_client = target_x - self.client.left
+            print('{} -- Left target distance with client border: {}'.format(self.ign, curr_target_dist_with_client))
+
+            if curr_target_dist_with_client > self.left_target_threshold:
                 if self.position == 'top':
-                    if char_x > target_x:
-                        self.jump_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
-                    else:
-                        self.jump_right_by(self.distance_with_left_target + abs(char_x - target_x))
-                else:
-                    if char_x > target_x:
-                        self.move_right_by(max(0, self.distance_with_left_target - abs(char_x - target_x)))
-                    else:
-                        self.move_right_by(self.distance_with_left_target + abs(char_x - target_x))
+                    self.teleport_right()
+                    self.jump_right_by(max(0, curr_target_dist_with_client - self.desired_left_target_dist))
+                elif self.position == 'bot':
+                    self.teleport_right()
+                    self.move_right_by(max(0, curr_target_dist_with_client - self.desired_left_target_dist))
 
-            elif len(rects_right):
-                target_x, target_y = midpoint(self.hwnd, rects_right)
-                print('{} distance with right target: {}'.format(self.ign, abs(char_x - target_x)))
+        elif len(rects_right):
+            target_x, target_y = midpoint(self.hwnd, rects_right)
+            curr_target_dist_with_client = self.client.right - target_x
+            print('{} -- Right target distance with client border: {}'.format(self.ign, curr_target_dist_with_client))
 
-                # safeguard to make sure character is still on the top-most platform
-                if char_x - target_x > - 100 and self.position == 'top':
-                    self.teleport_left()
-                    # Reduce the distance by approx 250 to account for the teleport
-                    self.move_left_by(max(0, self.distance_with_right_target - 250 - abs(char_x - target_x)))
-
-                elif char_x < target_x:
-                    self.move_left_by(max(0, self.distance_with_right_target - abs(char_x - target_x)))
-                else:
-                    self.move_left_by(self.distance_with_right_target + abs(char_x - target_x))
-        else:
-            self.teleport_right()
+            if curr_target_dist_with_client > self.right_target_threshold:
+                self.move_left_by(curr_target_dist_with_client - self.desired_right_target_dist)
 
     def move_to_car(self):
         loop = True
