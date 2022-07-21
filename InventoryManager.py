@@ -57,25 +57,25 @@ class InventoryManager:
             'stats path': 'KeyImages/Inventory/Stats/BloodDagger/'
         }
 
-        self.red_pirate_pants = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR)
-        self.red_pirate_pants_dexbox = {'width': 30,
-                                      'height': 15,
-                                      'crop_x': 40,
-                                      'crop_y': 185}
-        self.red_pirate_pants_lukbox = {'width': 30,
-                                      'height': 15,
-                                      'crop_x': 40,
-                                      'crop_y': 200}
-
-        self.red_pirate_top = cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_top'), cv2.IMREAD_COLOR)
-        self.red_pirate_top_dexbox = {'width': 30,
-                                      'height': 15,
-                                      'crop_x': 40,
-                                      'crop_y': 185}
-        self.red_pirate_top_lukbox = {'width': 30,
-                                      'height': 15,
-                                      'crop_x': 40,
-                                      'crop_y': 200}
+        self.red_pirate_pants = {
+            'image': cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_pants'), cv2.IMREAD_COLOR),
+            'meaningful stats': ['dex', 'luk'],
+            'box': {'width': 23,
+                    'height': 25,
+                    'crop_x': 45,
+                    'crop_y': 219},
+            'stats path': 'KeyImages/Inventory/Stats/RedPiratePants/'
+        }
+        # TODO: missing 6-10!
+        self.red_pirate_top = {
+            'image': cv2.imread(self.client.config.get(section='Inventory Images', option='red_pirate_top'), cv2.IMREAD_COLOR),
+            'meaningful stats': ['dex', 'luk'],
+            'box': {'width': 28,
+                    'height': 28,
+                    'crop_x': 43,
+                    'crop_y': 215},
+            'stats path': 'KeyImages/Inventory/Stats/RedPirateTop/'
+        }
 
         # TODO: still need to test 12-7, 12-6, 11-8!
         self.white_pioneer = {
@@ -85,11 +85,21 @@ class InventoryManager:
                     'height': 26,
                     'crop_x': 44,
                     'crop_y': 217},
-            'stats path': 'KeyImages/Inventory/Stats/WhitePioneer'
+            'stats path': 'KeyImages/Inventory/Stats/WhitePioneer/'
+        }
+
+        self.sparta = {
+            'image': cv2.imread(self.client.config.get(section='Inventory Images', option='sparta'), cv2.IMREAD_COLOR),
+            'meaningul stats': ['atk'],
+            'box': {'width': 29,
+                    'height': 15,
+                    'crop_x': 110,
+                    'crop_y': 230},
+            'stats path': 'KeyImages/Inventory/Stats/Sparta/'
         }
 
 
-        self.all_items = [self.craven, self.blood_dagger, self.white_pioneer]
+        self.all_items = [self.craven, self.blood_dagger, self.sparta, self.red_pirate_pants, self.white_pioneer, self.red_pirate_top]
 
     def loop_through_all(self):
         nbr_to_keep = 0
@@ -120,9 +130,10 @@ class InventoryManager:
 
         img_inv = self.client.take_screenshot()
         rects = find_image(img_inv, item['image'])
+        # i = 0
         if len(rects):
             for rect in rects:
-
+                # i += 1
                 x, y, w, h = rect
                 x += w/2
                 y += h/2
@@ -137,6 +148,7 @@ class InventoryManager:
                 stat_img = apply_hsv_filter(self.client.take_screenshot(dim=dim), self.filter)
                 # cv2.imshow('test', stat_img)
                 # cv2.waitKey(10000)
+                # cv2.imwrite(self.sparta['stats path'] + 'image' + str(i) + '.png', stat_img)
                 item_kept += self.loop_through_stats(item, stat_img, item_kept)
 
         return item_kept
@@ -144,7 +156,7 @@ class InventoryManager:
     def loop_through_stats(self, item, stat_to_find, item_kept):
         for file in os.listdir(item['stats path']):
             haystack = cv2.imread(os.path.join(item['stats path'], file), cv2.IMREAD_COLOR)
-            if len(find_image(haystack, stat_to_find, threshold=0.975)):
+            if len(find_image(haystack, stat_to_find, threshold=0.985)):
                 self.move_to_top(item_kept)
                 return 1
         return 0

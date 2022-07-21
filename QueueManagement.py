@@ -96,7 +96,7 @@ class QueueManager:
                     pass
 
                 print('channel list completed: {}'.format(self.channels[:]))
-                self.q.put(self.AFTER_CC)
+                self.q.put(self.AFTER_CC3)
 
             elif step == self.MAP_SEQUENCE_1:
                 print('step executing: {}'.format(nameof(self.MAP_SEQUENCE_1)))
@@ -308,7 +308,7 @@ class QueueManager:
             if ult_cast:
                 # When ult is cast, we want program to sleep for 2.8 seconds. However, we can still use this time to feed pet
                 now = time.time()
-                while time.time() - now < 3:
+                while time.time() - now < 2.8:
                     if time.time() > curr_pet_food_time + next_pet_food:
                         curr_pet_food_time = time.time()
                         next_pet_food = bs.feed_pet()
@@ -355,7 +355,7 @@ class QueueManager:
             if ult_cast:
                 # When ult is cast, we want program to sleep for 2.8 seconds. However, we can still use this time to feed pet
                 now = time.time()
-                while time.time() - now < 2.8:
+                while time.time() - now < 3:
                     if time.time() > curr_pet_food_time + next_pet_food:
                         curr_pet_food_time = time.time()
                         next_pet_food = mage.feed_pet()

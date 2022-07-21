@@ -26,10 +26,14 @@ config.read(config.get(section='Login Credentials', option='path'))
 
 if __name__ == '__main__':
 
+    test = LooterManager(config, 'LegalizeIt')
+    inv = InventoryManager(test)
+    inv.loop_through_all()
+
     # i = 0
-    # for file in os.listdir('KeyImages/Inventory/Stats/WhitePioneer/temp'):
+    # for file in os.listdir('KeyImages/Inventory/Stats/RedPiratePants/temp'):
     #     i += 1
-    #     img = cv2.imread(os.path.join('KeyImages/Inventory/Stats/WhitePioneer/temp/', file), cv2.IMREAD_COLOR)
+    #     img = cv2.imread(os.path.join('KeyImages/Inventory/Stats/RedPiratePants/temp/', file), cv2.IMREAD_COLOR)
     #     filter = HsvFilter(hMin=0,
     #                        sMin=0,
     #                        vMin=255,
@@ -43,13 +47,13 @@ if __name__ == '__main__':
     #     processed_img = apply_hsv_filter(img, filter)
     #     cv2.imwrite('KeyImages/Inventory/Stats/WhitePioneer/image' + str(i) + '.png', processed_img)
 
-    manager = QueueManager(config)
-
-    proc1 = multiprocessing.Process(target=manager.looter)
-    proc2 = multiprocessing.Process(target=manager.bishop)
-    proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
-    proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
-    proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
+    # manager = QueueManager(config)
+    #
+    # proc1 = multiprocessing.Process(target=manager.looter)
+    # proc2 = multiprocessing.Process(target=manager.bishop)
+    # proc3 = multiprocessing.Process(target=manager.mage, args=('Goldmine1', 'bot', 'second', ))
+    # proc4 = multiprocessing.Process(target=manager.mage, args=('Goldmine2', 'top', 'first', ))
+    # proc5 = multiprocessing.Process(target=manager.mage, args=('Goldmine3', 'top', 'second', ))
 
 
     # proc1 = multiprocessing.Process(target=manager.looter, args=('MidN',))
@@ -64,18 +68,18 @@ if __name__ == '__main__':
     # proc4 = multiprocessing.Process(target=manager.mage, args=('ZirG', 'top', 'first', ))
     # proc5 = multiprocessing.Process(target=manager.mage, args=('Leake', 'top', 'second', ))
 
-    print('time started {}'.format(time.strftime('%H:%M:%S', time.localtime())))
-    proc1.start()
-    proc2.start()
-    proc3.start()
-    proc4.start()
-    proc5.start()
-
-    proc1.join()
-    proc2.join()
-    proc3.join()
-    proc4.join()
-    proc5.join()
+    # print('time started {}'.format(time.strftime('%H:%M:%S', time.localtime())))
+    # proc1.start()
+    # proc2.start()
+    # proc3.start()
+    # proc4.start()
+    # proc5.start()
+    #
+    # proc1.join()
+    # proc2.join()
+    # proc3.join()
+    # proc4.join()
+    # proc5.join()
 
 
 

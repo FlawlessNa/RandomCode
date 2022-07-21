@@ -340,6 +340,6 @@ class LooterManager(ComplexClient):
     def map_sequence_11(self):
 
         self.move_left_for(0.5)
-        self.jump_right_for(3.5)
+        self.jump_right_for(4)
         time.sleep(1.5)
 
