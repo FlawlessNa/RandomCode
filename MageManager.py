@@ -90,25 +90,36 @@ class MageManager(ComplexClient):
 
     def reposition_needed(self):
 
+        # haystack = self.take_screenshot()
+        # curr_pos = self.find_self()
+        # rects_left = find_image(haystack, self.left_positioning_target)
+        # rects_right = find_image(haystack, self.right_positioning_target)
+        #
+        # if len(rects_left) and len(curr_pos):
+        #     self_x, self_y = midpoint(self.hwnd, curr_pos)
+        #     target_x, target_y = midpoint(self.hwnd, rects_left)
+        #     if self_x - target_x < self.distance_with_left_target:
+        #         return True
+        #
+        # elif len(rects_right) and len(curr_pos):
+        #     self_x, self_y = midpoint(self.hwnd, curr_pos)
+        #     target_x, target_y = midpoint(self.hwnd, rects_right)
+        #     if target_x - self_x < self.distance_with_right_target:
+        #         return True
+        #
+        # elif not len(curr_pos):
+        #     return True
+
         haystack = self.take_screenshot()
-        curr_pos = self.find_self()
         rects_left = find_image(haystack, self.left_positioning_target)
         rects_right = find_image(haystack, self.right_positioning_target)
 
-        if len(rects_left) and len(curr_pos):
-            self_x, self_y = midpoint(self.hwnd, curr_pos)
+        if len(rects_left):
             target_x, target_y = midpoint(self.hwnd, rects_left)
-            if self_x - target_x < self.distance_with_left_target:
-                return True
+            if self.client.left - target_x > 200:
+                print('reposition needed')
 
-        elif len(rects_right) and len(curr_pos):
-            self_x, self_y = midpoint(self.hwnd, curr_pos)
-            target_x, target_y = midpoint(self.hwnd, rects_right)
-            if target_x - self_x < self.distance_with_right_target:
-                return True
 
-        elif not len(curr_pos):
-            return True
 
     def reposition(self):
         char_pos = self.find_self()
